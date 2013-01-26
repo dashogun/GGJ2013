@@ -36,6 +36,19 @@ namespace BloodyPipeDream
 			// TODO: Add your initialization logic here
 
 			base.Initialize();
+
+            BloodyGrid g = new BloodyGrid(3, 3);
+            g.setStart(new BloodyStartTile(2), 0, 0);
+            g.insert(new BloodyStraightTile(1), 1, 0);
+            bool canInsert;
+            canInsert = g.canInsert(new BloodyStraightTile(1), 1, 0);
+            canInsert = g.canInsert(new BloodyStraightTile(1), 2, 0);
+            canInsert = g.canInsert(new BloodyStraightTile(0), 2, 0);
+            canInsert = g.canInsert(new BloodyCurvedTile(0), 2, 0);
+            canInsert = g.canInsert(new BloodyCurvedTile(1), 2, 0);
+            canInsert = g.canInsert(new BloodyCurvedTile(2), 2, 0);
+            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
+            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
 		}
 
 		/// <summary>
