@@ -75,13 +75,13 @@
     <Compile Include="BloodPressure.cs" />
     <Compile Include="Border.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="Lookahead.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="Pipe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="BloodyGrid.cs" />
+    <Compile Include="TileQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

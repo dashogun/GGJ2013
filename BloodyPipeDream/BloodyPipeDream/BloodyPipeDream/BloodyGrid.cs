@@ -46,7 +46,7 @@ namespace BloodyPipeDream
             return 0;
         }
 
-        public abstract void draw(int pos_x, int pos_y, SpriteBatch spritebatch);
+        public abstract void draw(Rectangle area, SpriteBatch spritebatch);
     }
 
     class BloodyNullTile : BloodyTile
@@ -71,18 +71,14 @@ namespace BloodyPipeDream
             }
         }
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            // todo; get values for tile width from somewhere else
-            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
-            spritebatch.Draw(texture, r, Color.White);
+            spritebatch.Draw(texture, area, Color.White);
         }
     }
 
     class BloodyStartTile : BloodyTile
     {
-
-
         int mOutIndex;
 
         public BloodyStartTile(int outIndex = 1)
@@ -97,7 +93,7 @@ namespace BloodyPipeDream
             //TODO: load
         }
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch) 
+		public override void draw(Rectangle area, SpriteBatch spritebatch) 
         { 
             //TODO: effin draw this
         }
@@ -109,7 +105,7 @@ namespace BloodyPipeDream
     {
         public override int getNextIndex(int index) { return -1; }
 
-        public virtual int fill(int amount)
+        public override int fill(int amount)
         {
             //TODO: signal game end
             return 0;
@@ -120,7 +116,7 @@ namespace BloodyPipeDream
             //TODO: load
         }
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
             //TODO: effin draw this
         }
@@ -167,11 +163,9 @@ namespace BloodyPipeDream
         }
 
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            // todo; get values for tile width from somewhere else
-            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
-            spritebatch.Draw(texture, r, Color.White);
+            spritebatch.Draw(texture, area, Color.White);
         }
     }
 
@@ -233,29 +227,31 @@ namespace BloodyPipeDream
             return -1;
         }
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            // todo; get values for tile width from somewhere else
-            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
-            spritebatch.Draw(texture, r, Color.White);
+            spritebatch.Draw(texture, area, Color.White);
         }
     }
 
     class BloodyGrid
     {
-        int mWidth, mHeight;
+        int mRows, mCols;
         int mStartX, mStartY;
+		Rectangle mArea;
+		int[] mTileSize;
 
         //x,y
         int[,] mAdjacencyLUT;
 
         BloodyTile[,] mGrid;
 
-        public BloodyGrid(int width, int height)
+        public BloodyGrid(int rows, int cols, Rectangle area)
         {
-            mWidth = width;
-            mHeight = height;
-            mGrid = new BloodyTile[width, height];
+            mRows = rows;
+            mCols = cols;
+			mArea = area;
+			mTileSize = new int[2] {area.Width / rows, area.Height / cols};
+            mGrid = new BloodyTile[rows, cols];
             mAdjacencyLUT = new int[4, 2];
 
             //Bottom
@@ -287,7 +283,7 @@ namespace BloodyPipeDream
 
         public bool isInGrid(int x, int y)
         {
-            return !(x < 0 || y < 0 || x >= mWidth || y >= mHeight);
+            return !(x < 0 || y < 0 || x >= mRows || y >= mCols);
         }
 
         public BloodyTile getTile(int x, int y)
@@ -369,9 +365,9 @@ namespace BloodyPipeDream
 
         public void clearGrid()
         {
-            for (int i = 0; i < mHeight; i++)
+            for (int i = 0; i < mCols; i++)
             {
-                for (int j = 0; j < mWidth; j++)
+                for (int j = 0; j < mRows; j++)
                 {
                     mGrid[i, j] = new BloodyNullTile();
                     Debug.WriteLine("adding null tile to location {0},{1}", i, j);
@@ -381,29 +377,28 @@ namespace BloodyPipeDream
 
         public void drawTiles(SpriteBatch spritebatch)
         {
-            int xloc = 0;
-            int yloc = 0;
+            int xloc = mArea.Left;
+            int yloc = mArea.Top;
 
             // for each row
-            for (int i = 0; i < mHeight; i++)
+            for (int i = 0; i < mCols; i++)
             {
                 // reset x to zero each time we move up a row
-                xloc = 0;
+                xloc = mArea.Left;
 
                 // for each column
-                for (int j = 0; j < mWidth; j++)
+                for (int j = 0; j < mRows; j++)
                 {
 
                     Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
-                    mGrid[j, i].draw(xloc, yloc, spritebatch);
+					Rectangle tileArea = new Rectangle(xloc, yloc, mTileSize[0], mTileSize[1]);
+                    mGrid[j, i].draw(tileArea, spritebatch);
 
-                    xloc += Globals.TILE_WIDTH;
+                    xloc += mTileSize[0];
                 }
 
-                yloc += Globals.TILE_HEIGHT;
-                
+                yloc += mTileSize[1];
             }
-            int z = 0;
         }
     }
 }

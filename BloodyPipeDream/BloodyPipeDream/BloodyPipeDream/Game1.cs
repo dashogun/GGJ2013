@@ -13,8 +13,7 @@ namespace BloodyPipeDream
 {
     class Globals
     {
-        public static int TILE_WIDTH = 64;
-        public static int TILE_HEIGHT = 64;
+       
     }
 
 
@@ -34,6 +33,7 @@ namespace BloodyPipeDream
 		GameMode Mode;
 		GameDifficulty Diff;
 		Menu Menu;
+		private TileQueue TileLookahead;
 
 		public static int ScreenWidth, ScreenHeight;
 		public static SpriteFont Font;
@@ -57,17 +57,22 @@ namespace BloodyPipeDream
 			Input = new Input();
 			Mode = GameMode.Menu;
 			Menu = new Menu(new String[]{"Start Easy Game", "Start Medium Game", "Start Hard Game", "Exit"});
-			ScreenWidth = 1024;
-			ScreenHeight = 768;
+			ScreenWidth = 800;
+			ScreenHeight = 800;
 			Graphics.PreferredBackBufferWidth = ScreenWidth;
 			Graphics.PreferredBackBufferHeight = ScreenHeight;
 			Graphics.ApplyChanges();
-			Font = Content.Load<SpriteFont>("font/SpriteFont2");
-			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
 
 			base.Initialize();
 
-            _grid = new BloodyGrid(10, 10);
+			Rectangle gridArea = new Rectangle(
+				ScreenWidth / 10,
+				ScreenHeight / 10,
+				ScreenWidth - 2 * (ScreenWidth / 10),
+				ScreenHeight - 2 * (ScreenHeight / 10));
+			_grid = new BloodyGrid(10, 10, gridArea);
+
+			// grid testing
             _grid.setStart(new BloodyStartTile(2), 0, 0);
             _grid.insert(new BloodyStraightTile(1), 0, 1);
             _grid.insert(new BloodyStraightTile(0), 0, 2);
@@ -84,6 +89,10 @@ namespace BloodyPipeDream
             canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
             canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
             canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
+
+			int lookaheadXPos = ScreenWidth - (ScreenWidth / 10) + (ScreenWidth / 100);
+			int lookaheadWidth = (ScreenWidth / 12);
+			TileLookahead = new TileQueue(lookaheadXPos, lookaheadWidth);
 		}
 
 		/// <summary>
@@ -94,10 +103,13 @@ namespace BloodyPipeDream
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
+			Font = Content.Load<SpriteFont>("font/SpriteFont2");
+			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
 
             BloodyStraightTile.loadContent(this);
             BloodyNullTile.loadContent(this);
             BloodyCurvedTile.loadContent(this);
+			TileQueue.loadContent(this);
 
 
 			// TODO: use this.Content to load your game content here
@@ -142,6 +154,7 @@ namespace BloodyPipeDream
 			else
 			{
                 _grid.drawTiles(SpriteBatch);
+				TileLookahead.Draw(SpriteBatch);
 			}
 
 			SpriteBatch.End();
@@ -163,14 +176,14 @@ namespace BloodyPipeDream
 				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; Mode = GameMode.Game; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
-	}
+			}
 			else if (Mode == GameMode.Game)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
 				if (Input.Up)
 				{
 					// move the cursor up
-}
+				}
 				else if (Input.Left)
 				{
 					// move the cursor left
