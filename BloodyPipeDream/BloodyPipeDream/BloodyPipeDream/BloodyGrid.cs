@@ -45,7 +45,12 @@ namespace BloodyPipeDream
         }
 
         public abstract void draw(Rectangle area, SpriteBatch spritebatch);
-    }
+
+		public virtual bool isNullTile()
+		{
+			return false;
+		}
+	}
 
     class BloodyNullTile : BloodyTile
     {
@@ -57,6 +62,11 @@ namespace BloodyPipeDream
         {
             mOutIndex = outIndex;
         }
+
+		public override bool isNullTile()
+		{
+			return true;
+		}
 
         public override int getNextIndex(int index) { return mOutIndex; }
 
@@ -78,7 +88,7 @@ namespace BloodyPipeDream
     class BloodyStartTile : BloodyTile
     {
         private static Texture2D[] textures = null;
-        int mOutIndex;
+        int mOutIndex; // 0 = down, 1 = left, 2 = right, 3 = up
 
         public BloodyStartTile(int outIndex = 1)
         {
@@ -356,7 +366,66 @@ namespace BloodyPipeDream
 			// zero out the grid with null tiles
 			this.clearGrid();
 
-			// set random start and end positions
+
+			int startX = 0, startY = 1, endX = 1, endY = 0;
+			int startOrientation = 0; // 0 = down, 1 = left, 2 = right, 3 = up
+			do
+			{
+				// set random start and end positions
+				int startSide = Rand.Next(4);
+				int endSide = Rand.Next(4);
+				int startPos = Rand.Next(mRows - 2);
+				int endPos = Rand.Next(mCols - 2);
+				switch (startSide)
+				{
+					case 0:
+						startX = 0;
+						startY = startPos + 1; // +1 to make sure the start isn't in the very corner
+						startOrientation = 2;
+						break;
+					case 1:
+						startX = startPos + 1;
+						startY = 0;
+						startOrientation = 0;
+						break;
+					case 2:
+						startX = mRows - 1;
+						startY = startPos + 1;
+						startOrientation = 1;
+						break;
+					case 3:
+						startX = startPos + 1;
+						startY = mCols - 1;
+						startOrientation = 3;
+						break;
+					default:
+						throw new Exception("invalid start side in bloody grid initialization");
+				}
+				switch (endSide)
+				{
+					case 0:
+						endX = 0;
+						endY = endPos + 1; // +1 to make sure the start isn't in the very corner
+						break;
+					case 1:
+						endX = endPos + 1;
+						endY = 0;
+						break;
+					case 2:
+						endX = mRows - 1;
+						endY = endPos + 1;
+						break;
+					case 3:
+						endX = endPos + 1;
+						endY = mCols - 1;
+						break;
+					default:
+						throw new Exception("invalid end side in bloody grid initialization");
+				}
+			} while (startX == endX && startY == endY);
+
+			setStart(new BloodyStartTile(startOrientation), startX, startY);
+			setEnd(new BloodyEndTile(), endX, endY);
 		}
 
         public void setStart(BloodyStartTile start, int startX, int startY)
@@ -416,13 +485,14 @@ namespace BloodyPipeDream
         public BloodyTile getNext(ref int io_index, ref int io_x, ref int io_y)
         {
             BloodyTile curTile = getTile(io_x, io_y);
-            io_index = curTile.getNextIndex(io_index);
+			io_index = curTile.getNextIndex(io_index);
+			if (-1 == io_index)
+				return null;
+
             io_x += mAdjacencyLUT[io_index, 0];
             io_y += mAdjacencyLUT[io_index, 1];
             io_index = ~io_index & 0x3;
             
-            if (-1 == io_index)
-                return null;
 
             return getTile(io_x, io_y);
         }
@@ -435,7 +505,7 @@ namespace BloodyPipeDream
 
         public bool canInsert(BloodyTile toInsert, int x, int y)
         {
-            if (isInInnerGrid(x, y) && null == getTile(x, y))
+            if (isInInnerGrid(x, y) && getTile(x, y).isNullTile())
             {
                 int index = -1;
                 int traceX = mStartX;
@@ -499,6 +569,7 @@ namespace BloodyPipeDream
 			if (canInsert(nextTile, (int)cursorPos.X, (int)cursorPos.Y))
 			{
 				insert(tileQueue.Pull(), (int)cursorPos.X, (int)cursorPos.Y);
+				tileQueue.Push(generateRandomTile());
 			}
 			else
 			{
@@ -513,14 +584,14 @@ namespace BloodyPipeDream
 			int type = Rand.Next(6);
 			switch (type)
 			{
-				case 1: return new BloodyStraightTile(0);
-				case 2: return new BloodyStraightTile(1);
-				case 3: return new BloodyCurvedTile(0);
-				case 4: return new BloodyCurvedTile(1);
-				case 5: return new BloodyCurvedTile(2);
-				case 6: return new BloodyCurvedTile(3);
+				case 0: return new BloodyStraightTile(0);
+				case 1: return new BloodyStraightTile(1);
+				case 2: return new BloodyCurvedTile(0);
+				case 3: return new BloodyCurvedTile(1);
+				case 4: return new BloodyCurvedTile(2);
+				case 5: return new BloodyCurvedTile(3);
+				default: throw new Exception(String.Format("invalid number for random tile generated: {0}", type));
 			}
-			return null;
 		}
 
         public void drawCursor(SpriteBatch spritebatch)
