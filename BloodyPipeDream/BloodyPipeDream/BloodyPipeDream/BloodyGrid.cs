@@ -307,6 +307,7 @@ namespace BloodyPipeDream
         int mEndX, mEndY;
 		Rectangle mArea;
 		int[] mTileSize;
+		Random Rand;
 
         //x,y
         int[,] mAdjacencyLUT;
@@ -315,14 +316,8 @@ namespace BloodyPipeDream
 
         public BloodyCursor cursor = null;
         public BloodyGrid(int rows, int cols, Rectangle area)
-        {
-            mInnerRows = rows;
-            mInnerCols = cols;
-            mRows = rows + 2;
-            mCols = cols + 2;
-			mArea = area;
-			mTileSize = new int[2] { area.Width / mRows, area.Height / mCols };
-			mGrid = new BloodyTile[mRows, mCols];
+		{
+			Rand = new Random();
             mAdjacencyLUT = new int[4, 2];
 
             //Bottom
@@ -341,11 +336,28 @@ namespace BloodyPipeDream
             mAdjacencyLUT[3, 0] = 0;
             mAdjacencyLUT[3, 1] = 1;
 
-            cursor = new BloodyCursor(area.Left, area.Top, mTileSize[0], mTileSize[1]);
+			mArea = area;
 
-            // zero out the grid with null tiles
-            this.clearGrid();
+			initialize(rows, cols);
+
         }
+
+		public void initialize(int rows, int cols)
+		{
+			mInnerRows = rows;
+			mInnerCols = cols;
+			mRows = rows + 2;
+			mCols = cols + 2;
+			mTileSize = new int[2] { mArea.Width / mRows, mArea.Height / mCols };
+			mGrid = new BloodyTile[mRows, mCols];
+			cursor = new BloodyCursor(mArea.Left, mArea.Top, mTileSize[0], mTileSize[1]);
+			cursor.setGridPosition(1, 1);
+
+			// zero out the grid with null tiles
+			this.clearGrid();
+
+			// set random start and end positions
+		}
 
         public void setStart(BloodyStartTile start, int startX, int startY)
         {
@@ -478,6 +490,38 @@ namespace BloodyPipeDream
                 }
             }
         }
+
+		public void attemptInsertAtCursor(ref TileQueue tileQueue)
+		{
+			BloodyTile nextTile = tileQueue.Peek();
+			Vector2 cursorPos = cursor.getGridPosition();
+
+			if (canInsert(nextTile, (int)cursorPos.X, (int)cursorPos.Y))
+			{
+				insert(tileQueue.Pull(), (int)cursorPos.X, (int)cursorPos.Y);
+			}
+			else
+			{
+				//cursor.signalError();
+				// play error sound
+				Debug.WriteLine("Cannot place tile {0} at {1}, {2}", nextTile.GetType().Name, (int)cursorPos.X, (int)cursorPos.Y);
+			}
+		}
+
+		public BloodyTile generateRandomTile()
+		{
+			int type = Rand.Next(6);
+			switch (type)
+			{
+				case 1: return new BloodyStraightTile(0);
+				case 2: return new BloodyStraightTile(1);
+				case 3: return new BloodyCurvedTile(0);
+				case 4: return new BloodyCurvedTile(1);
+				case 5: return new BloodyCurvedTile(2);
+				case 6: return new BloodyCurvedTile(3);
+			}
+			return null;
+		}
 
         public void drawCursor(SpriteBatch spritebatch)
         {

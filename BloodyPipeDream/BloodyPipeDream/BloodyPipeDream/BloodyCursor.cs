@@ -15,8 +15,6 @@ namespace BloodyPipeDream
 		private int Width, Height;
 		private int Thickness;
 
-        BloodyTile next_tile = null; // the tile next in the queue
-
         public BloodyCursor(int xOffset, int yOffset, int width, int height)
         {
             grid_x = 1;

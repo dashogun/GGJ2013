@@ -13,8 +13,6 @@ namespace BloodyPipeDream
 {
     class Globals
     {
-       
-
         public static int GRID_SIZE = 10;
     }
 
@@ -74,23 +72,6 @@ namespace BloodyPipeDream
 				ScreenWidth - 2 * (ScreenWidth / 10),
 				ScreenHeight - 2 * (ScreenHeight / 10));
 			_grid = new BloodyGrid(10, 10, gridArea);
-            _grid.setStart(new BloodyStartTile(2), 0, 1);
-            _grid.setEnd(new BloodyEndTile(), 11, 5);
-            _grid.insert(new BloodyStraightTile(1), 1, 2);
-            _grid.insert(new BloodyStraightTile(0), 1, 3);
-            _grid.insert(new BloodyCurvedTile(0), 2, 1);
-            _grid.insert(new BloodyCurvedTile(1), 2, 2);
-            _grid.insert(new BloodyCurvedTile(2), 3, 1);
-            _grid.insert(new BloodyCurvedTile(3), 3, 2);
-            bool canInsert;
-            canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
-            canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
-            canInsert = _grid.canInsert(new BloodyStraightTile(0), 2, 0);
-            canInsert = _grid.canInsert(new BloodyCurvedTile(0), 2, 0);
-            canInsert = _grid.canInsert(new BloodyCurvedTile(1), 2, 0);
-            canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
-            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
-            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
 
 			int lookaheadXPos = ScreenWidth - (ScreenWidth / 10) + (ScreenWidth / 100);
 			int lookaheadWidth = (ScreenWidth / 12);
@@ -139,6 +120,8 @@ namespace BloodyPipeDream
 			// TODO: Add your update logic here
 			HandleInput();
 
+			// keep the tile queue filled
+
 			base.Update(gameTime);
 		}
 
@@ -182,44 +165,80 @@ namespace BloodyPipeDream
 
 			if (Mode == GameMode.Menu)
 			{
-				if (Input.Back) { this.Exit(); }
-				if (Input.Start && Menu.Position == 3) { this.Exit(); }
+				if (Input.Back && !Input.WasBack) { this.Exit(); }
+				if (Input.Start && !Input.WasStart && Menu.Position == 3) { this.Exit(); }
 				if (Menu.Position == 3 && (Input.AnyButton || Input.Start)) { this.Exit(); }
-				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Easy; Mode = GameMode.Game; }
-				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Medium;  Mode = GameMode.Game; }
-				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; Mode = GameMode.Game; }
+				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Easy; StartGame(); }
+				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Medium; StartGame(); }
+				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; StartGame(); }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
 	        }
 			else if (Mode == GameMode.Game)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
-				if (Input.Up && !Input.WasUp)
-				{
-                    _grid.moveCursor(0, -1);
-                }
+				if (Input.Up && !Input.WasUp) { _grid.moveCursor(0, -1); }
+                if (Input.Left && !Input.WasLeft) { _grid.moveCursor(-1, 0); }
+                if (Input.Right && !Input.WasRight) { _grid.moveCursor(1, 0); }
+                if (Input.Down && !Input.WasDown) { _grid.moveCursor(0, 1); }
 				
-                if (Input.Left && !Input.WasLeft)
-				{
-                    _grid.moveCursor(-1, 0);
-				}
-				
-                if (Input.Right && !Input.WasRight)
-				{
-                    _grid.moveCursor(1, 0);
-				
-				}
-				
-                if (Input.Down && !Input.WasDown)
-				{
-                    _grid.moveCursor(0, 1);
-				}
-				
-                /*elseif (Input.AnyButton)
-				{
+                if (Input.AnyButton && !Input.WasAnyButton) {
 					// place the pipe at the current cursor position
-				}*/
+					_grid.attemptInsertAtCursor(ref TileLookahead);
 				}
 			}
 		}
+
+		protected void StartGame()
+		{
+			_grid.clearGrid();
+			TileLookahead.Clear();
+			switch (Diff)
+			{
+				case GameDifficulty.Easy:
+					_grid.initialize(5, 5);
+					// add 5
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					break;
+				case GameDifficulty.Medium:
+					_grid.initialize(7, 7);
+					// add 3
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					TileLookahead.Push(_grid.generateRandomTile());
+					break;
+				case GameDifficulty.Hard:
+					_grid.initialize(10, 10);
+					// add 1
+					TileLookahead.Push(_grid.generateRandomTile());
+					break;
+			}
+
+
+			// dummy initialization
+			_grid.setStart(new BloodyStartTile(2), 0, 1);
+			_grid.setEnd(new BloodyEndTile(), 11, 5);
+			_grid.insert(new BloodyStraightTile(1), 1, 2);
+			_grid.insert(new BloodyStraightTile(0), 1, 3);
+			_grid.insert(new BloodyCurvedTile(0), 2, 1);
+			_grid.insert(new BloodyCurvedTile(1), 2, 2);
+			_grid.insert(new BloodyCurvedTile(2), 3, 1);
+			_grid.insert(new BloodyCurvedTile(3), 3, 2);
+			bool canInsert;
+			canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
+			canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
+			canInsert = _grid.canInsert(new BloodyStraightTile(0), 2, 0);
+			canInsert = _grid.canInsert(new BloodyCurvedTile(0), 2, 0);
+			canInsert = _grid.canInsert(new BloodyCurvedTile(1), 2, 0);
+			canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
+			canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
+			canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
+
+			Mode = GameMode.Game;
+		}
 	}
+}

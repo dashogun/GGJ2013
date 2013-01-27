@@ -8,25 +8,36 @@ namespace BloodyPipeDream
 	class TileQueue
 	{
 		private static Texture2D Texture = null;
-		private Rectangle Area;
-		private Queue<BloodyTile> Queue;
+		private LinkedList<BloodyTile> Queue;
 		private int XPos, Width;
 
 		public TileQueue(int xPos, int width)
 		{
-			Queue = new Queue<BloodyTile>(5);
+			Queue = new LinkedList<BloodyTile>();
 			XPos = xPos;
 			Width = width;
 		}
 
 		public BloodyTile Pull()
 		{
-			return Queue.Dequeue();
+			BloodyTile tile = Queue.First.Value;
+			Queue.RemoveFirst();
+			return tile;
 		}
 
 		public void Push(BloodyTile tile)
 		{
-			Queue.Enqueue(tile);
+			Queue.AddLast(tile);
+		}
+
+		public BloodyTile Peek()
+		{
+			return Queue.First.Value;
+		}
+
+		public void Clear()
+		{
+			Queue.Clear();
 		}
 
 		public static void loadContent(Game game)
@@ -50,6 +61,17 @@ namespace BloodyPipeDream
 				scaleHeight
 				);
 			spriteBatch.Draw(Texture, r, Color.White);
+
+			LinkedListNode<BloodyTile> node = Queue.First;
+			do 
+			{
+				Rectangle tileArea = new Rectangle(
+					XPos,
+					(Game1.ScreenHeight - scaleHeight) / 2,
+					scaleWidth,
+					scaleWidth);
+				node.Value.draw(tileArea, spriteBatch);
+			} while (node.Next != null);
 		}
 
 		public void Update(SpriteBatch spriteBatch)
