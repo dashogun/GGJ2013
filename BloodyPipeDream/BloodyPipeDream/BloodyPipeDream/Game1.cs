@@ -7,17 +7,28 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
+    class Globals
+    {
+        public static int TILE_WIDTH = 64;
+        public static int TILE_HEIGHT = 64;
+    }
+
+
+
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
 	public class Game1 : Microsoft.Xna.Framework.Game
 	{
+
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
+        BloodyGrid _grid = null;
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -36,18 +47,23 @@ namespace BloodyPipeDream
 
 			base.Initialize();
 
-            BloodyGrid g = new BloodyGrid(3, 3);
-            g.setStart(new BloodyStartTile(2), 0, 0);
-            g.insert(new BloodyStraightTile(1), 1, 0);
+            _grid = new BloodyGrid(10, 10);
+            _grid.setStart(new BloodyStartTile(2), 0, 0);
+            _grid.insert(new BloodyStraightTile(1), 0, 1);
+            _grid.insert(new BloodyStraightTile(0), 0, 2);
+            _grid.insert(new BloodyCurvedTile(0), 1, 0);
+            _grid.insert(new BloodyCurvedTile(0), 1, 1);
+            _grid.insert(new BloodyCurvedTile(0), 2, 0);
+            _grid.insert(new BloodyCurvedTile(0), 2, 1);
             bool canInsert;
-            canInsert = g.canInsert(new BloodyStraightTile(1), 1, 0);
-            canInsert = g.canInsert(new BloodyStraightTile(1), 2, 0);
-            canInsert = g.canInsert(new BloodyStraightTile(0), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(0), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(1), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(2), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
+            canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
+            canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
+            canInsert = _grid.canInsert(new BloodyStraightTile(0), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(0), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(1), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
 		}
 
 		/// <summary>
@@ -58,6 +74,11 @@ namespace BloodyPipeDream
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            BloodyStraightTile.loadContent(this);
+            BloodyNullTile.loadContent(this);
+            BloodyCurvedTile.loadContent(this);
+
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -95,9 +116,13 @@ namespace BloodyPipeDream
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            spriteBatch.Begin();
 			// TODO: Add your drawing code here
+            _grid.drawTiles(spriteBatch);
+            spriteBatch.End();
 
 			base.Draw(gameTime);
+            
 		}
 	}
 }
