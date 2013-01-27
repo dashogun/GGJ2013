@@ -66,13 +66,14 @@ namespace BloodyPipeDream
 			base.Initialize();
 
             _grid = new BloodyGrid(10, 10);
-            _grid.setStart(new BloodyStartTile(2), 0, 0);
-            _grid.insert(new BloodyStraightTile(1), 0, 1);
-            _grid.insert(new BloodyStraightTile(0), 0, 2);
-            _grid.insert(new BloodyCurvedTile(0), 1, 0);
-            _grid.insert(new BloodyCurvedTile(1), 1, 1);
-            _grid.insert(new BloodyCurvedTile(2), 2, 0);
-            _grid.insert(new BloodyCurvedTile(3), 2, 1);
+            _grid.setStart(new BloodyStartTile(2), 0, 1);
+            _grid.setEnd(new BloodyEndTile(), 11, 5);
+            _grid.insert(new BloodyStraightTile(1), 1, 2);
+            _grid.insert(new BloodyStraightTile(0), 1, 3);
+            _grid.insert(new BloodyCurvedTile(0), 2, 1);
+            _grid.insert(new BloodyCurvedTile(1), 2, 2);
+            _grid.insert(new BloodyCurvedTile(2), 3, 1);
+            _grid.insert(new BloodyCurvedTile(3), 3, 2);
             bool canInsert;
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
@@ -97,6 +98,7 @@ namespace BloodyPipeDream
             BloodyStraightTile.loadContent(this);
             BloodyNullTile.loadContent(this);
             BloodyCurvedTile.loadContent(this);
+            BloodyEndTile.loadContent(this);
 
 
 			// TODO: use this.Content to load your game content here

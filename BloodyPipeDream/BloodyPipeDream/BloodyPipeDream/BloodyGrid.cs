@@ -146,6 +146,8 @@ namespace BloodyPipeDream
 
     class BloodyEndTile : BloodyTile
     {
+        private static Texture2D texture = null;
+
         public override int getNextIndex(int index) { return -1; }
 
         public virtual int fill(int amount)
@@ -156,12 +158,22 @@ namespace BloodyPipeDream
 
         public static void loadContent(Game game)
         {
-            //TODO: load
+            //TODO rotate tile appropriatelly
+            if (texture == null)
+            {
+                Debug.WriteLine("Initializing static value for straight tile texture");
+                texture = game.Content.Load<Texture2D>("img/end_pipe_128");
+            }
+            else
+            {
+                Debug.WriteLine("straight pipe texture is already initialized");
+            }
         }
 
         public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
         {
-            //TODO: effin draw this
+            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            spritebatch.Draw(texture, r, null, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
         }
     }
 
@@ -302,7 +314,9 @@ namespace BloodyPipeDream
     class BloodyGrid
     {
         int mWidth, mHeight;
+        int mInnerWidth, mInnerHeight;
         int mStartX, mStartY;
+        int mEndX, mEndY;
 
         //x,y
         int[,] mAdjacencyLUT;
@@ -311,9 +325,11 @@ namespace BloodyPipeDream
 
         public BloodyGrid(int width, int height)
         {
-            mWidth = width;
-            mHeight = height;
-            mGrid = new BloodyTile[width, height];
+            mInnerWidth = width;
+            mInnerHeight = height;
+            mWidth = width + 2;
+            mHeight = height + 2;
+            mGrid = new BloodyTile[mWidth, mHeight];
             mAdjacencyLUT = new int[4, 2];
 
             //Bottom
@@ -343,9 +359,21 @@ namespace BloodyPipeDream
             mStartY = startY;
         }
 
-        public bool isInGrid(int x, int y)
+        public void setEnd(BloodyEndTile end, int endX, int endY)
+        {
+            mGrid[endX, endY] = end;
+            mEndX = endX;
+            mEndY = endY;
+        }
+
+        bool isInGrid(int x, int y)
         {
             return !(x < 0 || y < 0 || x >= mWidth || y >= mHeight);
+        }
+
+        public bool isInInnerGrid(int x, int y)
+        {
+            return !(x < 1 || y < 1 || x >= mInnerWidth+1 || y >= mInnerHeight+1) || (x == mStartX && y == mStartY) || (x == mEndX && y == mEndY);
         }
 
         public BloodyTile getTile(int x, int y)
@@ -381,7 +409,7 @@ namespace BloodyPipeDream
 
         public bool canInsert(BloodyTile toInsert, int x, int y)
         {
-            if (isInGrid(x, y) && null == getTile(x, y))
+            if (isInInnerGrid(x, y) && null == getTile(x, y))
             {
                 int index = -1;
                 int traceX = mStartX;
@@ -395,7 +423,7 @@ namespace BloodyPipeDream
                         return false;
                     traceX += mAdjacencyLUT[index, 0];
                     traceY += mAdjacencyLUT[index, 1];
-                    return isInGrid(traceX, traceY);
+                    return isInInnerGrid(traceX, traceY);
                 }
 
                 return true;
@@ -439,29 +467,20 @@ namespace BloodyPipeDream
 
         public void drawTiles(SpriteBatch spritebatch)
         {
-            int xloc = 0;
-            int yloc = 0;
 
             // for each row
             for (int i = 0; i < mHeight; i++)
             {
-                // reset x to zero each time we move up a row
-                xloc = 0;
-
                 // for each column
                 for (int j = 0; j < mWidth; j++)
                 {
-
-                    Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
-                    mGrid[j, i].draw(xloc, yloc, spritebatch);
-
-                    xloc += Globals.TILE_WIDTH;
-                }
-
-                yloc += Globals.TILE_HEIGHT;
-                
+                    if (isInInnerGrid(j, i))
+                    {
+                        Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})", j, i, mGrid[j, i].GetType(), Globals.TILE_WIDTH * j, Globals.TILE_HEIGHT * i);
+                        mGrid[j, i].draw(Globals.TILE_WIDTH * j, Globals.TILE_HEIGHT * i, spritebatch);
+                    }
+                }                
             }
-            int z = 0;
         }
     }
 }
