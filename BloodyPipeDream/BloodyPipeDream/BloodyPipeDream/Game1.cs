@@ -33,7 +33,8 @@ namespace BloodyPipeDream
 		GameMode Mode;
 		GameDifficulty Diff;
 		Menu Menu;
-		private TileQueue TileLookahead;
+		TileQueue TileLookahead;
+		BloodPressure BP;
 
 		public static int ScreenWidth, ScreenHeight;
 		public static SpriteFont Font;
@@ -76,6 +77,10 @@ namespace BloodyPipeDream
 			int lookaheadXPos = ScreenWidth - (ScreenWidth / 10) + (ScreenWidth / 100);
 			int lookaheadWidth = (ScreenWidth / 12);
 			TileLookahead = new TileQueue(lookaheadXPos, lookaheadWidth);
+
+			int BPxPos = (ScreenWidth / 100);
+			int BPWidth = (ScreenWidth / 12);
+			BP = new BloodPressure(BPxPos, BPWidth);
 		}
 
 		/// <summary>
@@ -96,7 +101,7 @@ namespace BloodyPipeDream
             BloodyCurvedTile.loadContent(this);
             BloodyEndTile.loadContent(this);
 			TileQueue.loadContent(this);
-
+			BloodPressure.loadContent(this);
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -119,8 +124,6 @@ namespace BloodyPipeDream
 		{
 			// TODO: Add your update logic here
 			HandleInput();
-
-			// keep the tile queue filled
 
 			base.Update(gameTime);
 		}
@@ -152,6 +155,7 @@ namespace BloodyPipeDream
                 _grid.drawTiles(SpriteBatch);
                 _grid.drawCursor(SpriteBatch);
 				TileLookahead.Draw(SpriteBatch);
+				BP.Draw(SpriteBatch);
 			}
 
 			SpriteBatch.End();
