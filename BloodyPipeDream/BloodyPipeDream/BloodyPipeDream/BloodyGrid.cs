@@ -251,6 +251,8 @@ namespace BloodyPipeDream
 
         BloodyTile[,] mGrid;
 
+        public BloodyCursor cursor = null;
+
         public BloodyGrid(int width, int height)
         {
             mWidth = width;
@@ -273,6 +275,8 @@ namespace BloodyPipeDream
             //Top
             mAdjacencyLUT[3, 0] = 0;
             mAdjacencyLUT[3, 1] = 1;
+
+            cursor = new BloodyCursor();
 
             // zero out the grid with null tiles
             this.clearGrid();
@@ -379,6 +383,11 @@ namespace BloodyPipeDream
             }
         }
 
+        public void drawCursor(SpriteBatch spritebatch)
+        {
+            cursor.Draw(spritebatch);
+        }
+
         public void drawTiles(SpriteBatch spritebatch)
         {
             int xloc = 0;
@@ -394,7 +403,7 @@ namespace BloodyPipeDream
                 for (int j = 0; j < mWidth; j++)
                 {
 
-                    Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
+                   // Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
                     mGrid[j, i].draw(xloc, yloc, spritebatch);
 
                     xloc += Globals.TILE_WIDTH;

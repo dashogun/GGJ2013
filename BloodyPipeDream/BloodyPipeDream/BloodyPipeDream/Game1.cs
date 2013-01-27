@@ -15,6 +15,8 @@ namespace BloodyPipeDream
     {
         public static int TILE_WIDTH = 64;
         public static int TILE_HEIGHT = 64;
+
+        public static int GRID_SIZE = 10;
     }
 
 
@@ -65,7 +67,7 @@ namespace BloodyPipeDream
 
 			base.Initialize();
 
-            _grid = new BloodyGrid(10, 10);
+            _grid = new BloodyGrid(Globals.GRID_SIZE, Globals.GRID_SIZE);
             _grid.setStart(new BloodyStartTile(2), 0, 0);
             _grid.insert(new BloodyStraightTile(1), 0, 1);
             _grid.insert(new BloodyStraightTile(0), 0, 2);
@@ -140,6 +142,7 @@ namespace BloodyPipeDream
 			else
 			{
                 _grid.drawTiles(SpriteBatch);
+                _grid.drawCursor(SpriteBatch);
 			}
 
 			SpriteBatch.End();
@@ -159,30 +162,38 @@ namespace BloodyPipeDream
 				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Mode = GameMode.Game; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
-	}
+	        }
 			else if (Mode == GameMode.Game)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
-				if (Input.Up)
+				if (Input.Up && !Input.WasUp)
 				{
-					// move the cursor up
-}
-				else if (Input.Left)
+                    _grid.cursor.moveUp();
+                }
+				
+                if (Input.Left && !Input.WasLeft)
 				{
+                    _grid.cursor.moveLeft();
 					// move the cursor left
 				}
-				else if (Input.Right)
+				
+                if (Input.Right && !Input.WasRight)
 				{
+                    _grid.cursor.moveRight();
 					// move the cursor right
-				}
-				else if (Input.Down)
+				
+                }
+				
+                if (Input.Down && !Input.WasDown)
 				{
+                    _grid.cursor.moveDown();
 					// move the cursor down
 				}
-				else if (Input.AnyButton)
+				
+                /*elseif (Input.AnyButton)
 				{
 					// place the pipe at the current cursor position
-				}
+				}*/
 			}
 		}
 	}
