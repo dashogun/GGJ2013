@@ -366,9 +366,14 @@ namespace BloodyPipeDream
             return !(x < 0 || y < 0 || x >= mRows || y >= mCols);
         }
 
+		public bool canDrawTile(int x, int y)
+		{
+			return isInInnerGrid(x, y) || (x == mStartX && y == mStartY) || (x == mEndX && y == mEndY);
+		}
+		
         public bool isInInnerGrid(int x, int y)
         {
-            return !(x < 1 || y < 1 || x >= mInnerRows+1 || y >= mInnerCols+1) || (x == mStartX && y == mStartY) || (x == mEndX && y == mEndY);
+            return !(x < 1 || y < 1 || x >= mInnerRows+1 || y >= mInnerCols+1);
         }
 
         public BloodyTile getTile(int x, int y)
@@ -493,7 +498,7 @@ namespace BloodyPipeDream
                 // for each column
                 for (int j = 0; j < mRows; j++)
                 {
-                    if (isInInnerGrid(j, i))
+					if (canDrawTile(j, i))
                     {
 						//Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})", j, i, mGrid[j, i].GetType(), xloc, yloc);
 						Rectangle tileArea = new Rectangle(xloc, yloc, mTileSize[0], mTileSize[1]);
