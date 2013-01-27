@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloodPressure.cs" />
+    <Compile Include="Border.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Lookahead.cs" />
     <Compile Include="Menu.cs" />

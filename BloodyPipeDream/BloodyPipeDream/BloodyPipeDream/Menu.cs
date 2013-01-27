@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 
@@ -57,31 +56,9 @@ namespace BloodyPipeDream
 			// draw the selection box
 			Vector2 selTextSize = Game1.Font.MeasureString(Options[Position]);
 			int selThickness = yOffset / 10;
-			Rectangle selTop = new Rectangle(
-				bg.Left,
-				bg.Top + yOffset * Position,
-				bg.Width,
-				selThickness);
-			Rectangle selBottom = new Rectangle(
-				bg.Left,
-				bg.Top + yOffset * (Position + 1) - selThickness,
-				bg.Width,
-				selThickness);
-			Rectangle selLeft = new Rectangle(
-				bg.Left,
-				bg.Top + yOffset * Position,
-				selThickness,
-				yOffset);
-			Rectangle selRight = new Rectangle(
-				bg.Right - selThickness,
-				bg.Top + yOffset * Position,
-				selThickness,
-				yOffset);
-
-			spriteBatch.Draw(BGTexture, selTop, Color.Green);
-			spriteBatch.Draw(BGTexture, selLeft, Color.Green);
-			spriteBatch.Draw(BGTexture, selRight, Color.Green);
-			spriteBatch.Draw(BGTexture, selBottom, Color.Green);
+			Rectangle selArea = new Rectangle(bg.Left, bg.Top + yOffset * Position, bg.Width, yOffset);
+			Border b = new Border(selArea, selThickness, Color.Green);
+			b.Draw(spriteBatch);
 		}
 
 		public void MoveUp()
