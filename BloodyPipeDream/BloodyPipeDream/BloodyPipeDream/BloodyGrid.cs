@@ -485,11 +485,11 @@ namespace BloodyPipeDream
                 {
                     if (isInInnerGrid(j, i))
                     {
-                        Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})", j, i, mGrid[j, i].GetType(), Globals.TILE_WIDTH * j, Globals.TILE_HEIGHT * i);
+                        //Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})", j, i, mGrid[j, i].GetType(), Globals.TILE_WIDTH * j, Globals.TILE_HEIGHT * i);
                         mGrid[j, i].draw(Globals.TILE_WIDTH * j, Globals.TILE_HEIGHT * i, spritebatch);
+                    }
                 }
             }
         }
     }
-}
 }
