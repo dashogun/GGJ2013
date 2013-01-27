@@ -66,8 +66,9 @@ namespace BloodyPipeDream
 			}
 		}
 
-		public void Update(GameTime gametime)
+		public bool Update(GameTime gametime)
 		{
+			bool alright = true;
 			AccumulatedMsec += gametime.ElapsedGameTime.Milliseconds;
 
 			while (AccumulatedMsec > Globals.MSEC_PER_PRESSURE)
@@ -76,9 +77,11 @@ namespace BloodyPipeDream
 				{
 					// signal game over
 					Debug.WriteLine("Game Over!!!");
+					alright = false;
 				}
 				AccumulatedMsec -= Globals.MSEC_PER_PRESSURE;
 			}
+			return alright;
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
