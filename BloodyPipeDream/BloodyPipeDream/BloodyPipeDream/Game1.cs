@@ -30,7 +30,7 @@ namespace BloodyPipeDream
 		private SpriteBatch SpriteBatch;
 		private BloodyGrid _grid;
 
-		enum GameMode { Menu, Game, Win, Lose };
+		enum GameMode { Menu, Game, Win, Lose, Help };
 		enum GameDifficulty { Easy, Medium, Hard };
 		Input Input;
 		GameMode Mode;
@@ -61,7 +61,7 @@ namespace BloodyPipeDream
 			// TODO: Add your initialization logic here
 			Input = new Input();
 			Mode = GameMode.Menu;
-			Menu = new Menu(new String[]{"Start Easy Game", "Start Medium Game", "Start Hard Game", "Exit"});
+			Menu = new Menu(new String[]{"Start Easy Game", "Start Medium Game", "Start Hard Game", "Exit", "Help"});
 			ScreenWidth = 800;
 			ScreenHeight = 800;
 			Graphics.PreferredBackBufferWidth = ScreenWidth;
@@ -191,6 +191,21 @@ namespace BloodyPipeDream
 				Vector2 losePos = new Vector2((Game1.ScreenWidth / 2) - (loseSize.X / 2), (Game1.ScreenHeight / 2) - (loseSize.Y / 2));
 				SpriteBatch.DrawString(Game1.TitleFont, loseString, losePos, Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 			}
+			else if (Mode == GameMode.Help)
+			{
+				String helpString = "Help? Who needs help!\n";
+				helpString += "* Pipe Lookahead is on the right.\n";
+				helpString += "* Blood Pressure is on the left.\n";
+				helpString += "* Arrow Keys Move Cursor.\n";
+				helpString += "* GOAL: get the blood from the heart to the brain!\n";
+				helpString += "Button 1) Places the pipe. (Or use space bar)\n";
+				helpString += "Button 2) Pumps the blood and lowers the pressure\n";
+				helpString += "Button 3) Pumps the blood REALLY FAST!";
+
+				Vector2 strSize = Game1.Font.MeasureString(helpString);
+				Vector2 strPos = new Vector2((Game1.ScreenWidth / 2) - (strSize.X / 2), (Game1.ScreenHeight / 2) - (strSize.Y / 2));
+				SpriteBatch.DrawString(Game1.Font, helpString, strPos, Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+			}
 
 			SpriteBatch.End();
 			base.Draw(gameTime);
@@ -209,6 +224,7 @@ namespace BloodyPipeDream
 				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Easy; StartGame(); }
 				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Medium; StartGame(); }
 				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; StartGame(); }
+				if (Menu.Position == 4 && (Input.AnyButton || Input.Start) && !Input.WasAnyButton && !Input.WasStart) { Mode = GameMode.Help; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
 	        }
@@ -246,6 +262,13 @@ namespace BloodyPipeDream
 			else if (Mode == GameMode.Lose || Mode == GameMode.Win)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
+			}
+			else if (Mode == GameMode.Help)
+			{
+				if (Input.AnyKey && !Input.WasAnyKey)
+				{
+					Mode = GameMode.Menu;
+				}
 			}
 		}
 

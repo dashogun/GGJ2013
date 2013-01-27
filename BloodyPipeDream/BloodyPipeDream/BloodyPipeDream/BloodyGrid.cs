@@ -158,9 +158,11 @@ namespace BloodyPipeDream
             {
                 textures = new Texture2D[2];
                 Debug.WriteLine("Initializing static value for start tile texture");
-                textures[0] = game.Content.Load<Texture2D>("img/start_pipe_vertical_128");
-                textures[1] = game.Content.Load<Texture2D>("img/start_pipe_horizontal_128");
-        }
+//                 textures[0] = game.Content.Load<Texture2D>("img/start_pipe_vertical_128");
+//                 textures[1] = game.Content.Load<Texture2D>("img/start_pipe_horizontal_128");
+				textures[0] = game.Content.Load<Texture2D>("img/start_pipe_top_layer_128");
+				textures[1] = game.Content.Load<Texture2D>("img/start_pipe_top_layer_128");
+			}
             else
             {
                 Debug.WriteLine("start pipe texture is already initialized");
@@ -237,7 +239,7 @@ namespace BloodyPipeDream
             if (texture == null)
             {
                 Debug.WriteLine("Initializing static value for straight tile texture");
-                texture = game.Content.Load<Texture2D>("img/end_pipe_128");
+                texture = game.Content.Load<Texture2D>("img/end_pipe_top_128");
         }
             else
             {
