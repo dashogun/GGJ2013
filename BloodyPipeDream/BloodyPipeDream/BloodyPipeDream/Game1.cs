@@ -140,9 +140,9 @@ namespace BloodyPipeDream
 
             if (Mode != GameMode.Menu)
             {
-                double dt = gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0;
-                bool isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
-                isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
+               // double dt = gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0;
+               // bool isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
+               // isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
             }
 		}
 
@@ -231,7 +231,11 @@ namespace BloodyPipeDream
 					// pump the blood through the pipes
 					
 					// lower the blood pressure
-					BP.decreasePressure(Globals.PRESSURE_DECREASE);
+					int fillAmt = BP.decreasePressure(Globals.PRESSURE_DECREASE);
+                    if (!_grid.fill(fillAmt * 10, GraphicsDevice))
+                    {
+                        Mode = GameMode.Lose;
+                    }
 				}
 			}
 			else if (Mode == GameMode.Lose || Mode == GameMode.Win)

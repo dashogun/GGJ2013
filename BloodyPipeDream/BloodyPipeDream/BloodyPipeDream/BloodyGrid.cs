@@ -28,9 +28,9 @@ namespace BloodyPipeDream
 
         //Add blood to this tile
         //Returns amount of blood that doesn't fit in tile
-        public virtual int fill(int amount, GraphicsDevice graphicsDevice)
+        public virtual int fill(int index, int amount, GraphicsDevice graphicsDevice)
         {
-            if (mFill >= mMaxFill)
+            if (-1 == getNextIndex(index))
                 return amount;
             
             mFill += amount;
@@ -70,8 +70,8 @@ namespace BloodyPipeDream
 
                 for (double r = -100; r <= -28; r += 0.5)
                 {
-                    int x = (int)Math.Round(r * Math.Cos(angle)) + radius;
-                    int y = (int)Math.Round(r * Math.Sin(angle)) + radius;
+                    int x = radius - (int)Math.Round(r * Math.Cos(angle));
+                    int y = 129 + (int)Math.Round(r * Math.Sin(angle));
                     data[y * outerRadius + x + 1] = Color.White;
                 }
             }
@@ -167,10 +167,10 @@ namespace BloodyPipeDream
             }
         }
 
-        public override int fill(int amount, GraphicsDevice graphicsDevice)
+        public override int fill(int index, int amount, GraphicsDevice graphicsDevice)
         {
             int oldAmount = amount;
-            amount = base.fill(amount, graphicsDevice);
+            amount = base.fill(index, amount, graphicsDevice);
             if (amount != oldAmount)
             {
                 int fillPixels = (int)((mFill / (double)mMaxFill) * 128);
@@ -178,8 +178,8 @@ namespace BloodyPipeDream
                 int y0 = mOutIndex != 3 ? 0 : 128 - fillPixels;
                 int width = mOutIndex == 0 || mOutIndex == 3 ? 128 : fillPixels;
                 int height = mOutIndex == 1 || mOutIndex == 2 ? 128 : fillPixels;
-                //fillTex = CreateRectangle(new Rectangle(0, 0, 128, 128), new Rectangle(x0, y0, width, height), graphicsDevice);
-                fillTex = CreateCircle(false, mFill / (float)mMaxFill, graphicsDevice);
+                fillTex = CreateRectangle(new Rectangle(0, 0, 128, 128), new Rectangle(x0, y0, width, height), graphicsDevice);
+                //fillTex = CreateCircle(false, mFill / (float)mMaxFill, graphicsDevice);
             }
             return amount;
         }
@@ -212,9 +212,9 @@ namespace BloodyPipeDream
             Texture2D texture = null;
             SpriteEffects flip = SpriteEffects.None;
             getTextureFlip(ref texture, ref flip);
-            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0,0), flip, 0);
             if (null!= fillTex)
-                spritebatch.Draw(fillTex, area, null, Color.Red, 0, new Vector2(0, 0), flip, 0);
+                spritebatch.Draw(fillTex, area, Color.Red);
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
         }
     }
 
@@ -226,7 +226,7 @@ namespace BloodyPipeDream
 
         public override int getNextIndex(int index) { return -1; }
 
-        public override int fill(int amount, GraphicsDevice graphicsDevice)
+        public override int fill(int index, int amount, GraphicsDevice graphicsDevice)
         {
             //TODO: signal game end
             return 0;
@@ -299,15 +299,16 @@ namespace BloodyPipeDream
             return -1;
         }
 
-        public override int fill(int amount, GraphicsDevice graphicsDevice)
+        public override int fill(int index, int amount, GraphicsDevice graphicsDevice)
         {
             int oldAmount = amount;
-            amount = base.fill(amount, graphicsDevice);
+            amount = base.fill(index, amount, graphicsDevice);
             if (amount != oldAmount)
             {
+                bool direction = 0 == mRotation && 3 == index || 1 == mRotation && 1 == index;
                 int fillPixels = (int)((mFill / (double)mMaxFill) * 128);
-                int x0 = 0 == mRotation || (true) ? 0 : 128 - fillPixels;
-                int y0 = 1 == mRotation || (true) ? 0 : 128 - fillPixels;
+                int x0 = 0 == mRotation || (direction) ? 0 : 128 - fillPixels;
+                int y0 = 1 == mRotation || (direction) ? 0 : 128 - fillPixels;
                 int width = mRotation == 0 ? 128 : fillPixels;
                 int height = mRotation == 1 ? 128 : fillPixels;
                 fillTex = CreateRectangle(new Rectangle(0, 0, 128, 128), new Rectangle(x0, y0, width, height), graphicsDevice);
@@ -318,11 +319,13 @@ namespace BloodyPipeDream
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
             Texture2D texture = (mRotation == 1) ? textures[1] : textures[0];
-			spritebatch.Draw(bgTexture, area, Color.White);
-			spritebatch.Draw(texture, area, Color.White);
+            spritebatch.Draw(bgTexture, area, Color.White);
 
             if (null != fillTex)
                 spritebatch.Draw(fillTex, area, Color.Red);
+
+			spritebatch.Draw(texture, area, Color.White);
+
         }
     }
 
@@ -405,14 +408,27 @@ namespace BloodyPipeDream
             return SpriteEffects.None;
         }
 
+        public override int fill(int index, int amount, GraphicsDevice graphicsDevice)
+        {
+            int oldAmount = amount;
+            amount = base.fill(index, amount, graphicsDevice);
+            if (amount != oldAmount)
+            {
+                bool direction = mRotation == 0 && index == 2 || mRotation == 1 && index == 2 || mRotation == 2 && index == 1 || mRotation == 3 && index == 1;
+                fillTex = CreateCircle(direction, mFill / (float)mMaxFill, graphicsDevice);
+            }
+            return amount;
+        }
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
 			SpriteEffects flip = getTextureFlip();
-			spritebatch.Draw(bgTexture, area, Color.White);
-            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
+            spritebatch.Draw(bgTexture, area, Color.White);
+
             if (null != fillTex)
                 spritebatch.Draw(fillTex, area, null, Color.Red, 0, new Vector2(0, 0), flip, 0);
+
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
         }
     }
 
@@ -439,7 +455,7 @@ namespace BloodyPipeDream
 
             //Bottom
             mAdjacencyLUT[0, 0] = 0; 
-            mAdjacencyLUT[0, 1] = -1;
+            mAdjacencyLUT[0, 1] = 1;
 
             //Left
             mAdjacencyLUT[1, 0] = -1;
@@ -451,7 +467,7 @@ namespace BloodyPipeDream
 
             //Top
             mAdjacencyLUT[3, 0] = 0;
-            mAdjacencyLUT[3, 1] = 1;
+            mAdjacencyLUT[3, 1] = -1;
 
 			mArea = area;
 
@@ -592,6 +608,8 @@ namespace BloodyPipeDream
         public BloodyTile getNext(ref int io_index, ref int io_x, ref int io_y)
         {
             BloodyTile curTile = getTile(io_x, io_y);
+            if (curTile.isNullTile())
+                return null;
 			io_index = curTile.getNextIndex(io_index);
 			if (-1 == io_index)
 				return null;
@@ -626,7 +644,7 @@ namespace BloodyPipeDream
                         return false;
                     traceX += mAdjacencyLUT[index, 0];
                     traceY += mAdjacencyLUT[index, 1];
-                    return isInInnerGrid(traceX, traceY);
+                    return canDrawTile(traceX, traceY);
                 }
 
                 return true;
@@ -649,7 +667,7 @@ namespace BloodyPipeDream
 
             while (0 != amount && null != curTile)
             {
-                amount = curTile.fill(amount, graphicsDevice);
+                amount = curTile.fill(index, amount, graphicsDevice);
                 curTile = getNext(ref index, ref x, ref y);
             }
 

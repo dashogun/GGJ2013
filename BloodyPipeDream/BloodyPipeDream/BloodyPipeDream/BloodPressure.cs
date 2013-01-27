@@ -57,13 +57,16 @@ namespace BloodyPipeDream
 			return true;
 		}
 
-		public void decreasePressure(int amount)
+		public int decreasePressure(int amount)
 		{
+            int ret = amount;
 			BP -= amount;
 			if (BP <= 0)
 			{
+                ret = BP + amount;
 				BP = 0;
 			}
+            return ret;
 		}
 
 		public bool Update(GameTime gametime)
