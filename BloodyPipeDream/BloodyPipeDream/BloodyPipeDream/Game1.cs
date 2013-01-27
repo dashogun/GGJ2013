@@ -198,9 +198,10 @@ namespace BloodyPipeDream
 				helpString += "* Blood Pressure is on the left.\n";
 				helpString += "* Arrow Keys Move Cursor.\n";
 				helpString += "* GOAL: get the blood from the heart to the brain!\n";
-				helpString += "Button 1) Places the pipe. (Or use space bar)\n";
-				helpString += "Button 2) Pumps the blood and lowers the pressure\n";
-				helpString += "Button 3) Pumps the blood REALLY FAST!";
+				helpString += "# 1) Places the pipe. (Or use space bar)\n";
+				helpString += "# 2) Pumps the blood and lowers the pressure\n";
+				helpString += "# 3) Pumps the blood REALLY FAST!";
+				helpString += "Esc) Go back.";
 
 				Vector2 strSize = Game1.Font.MeasureString(helpString);
 				Vector2 strPos = new Vector2((Game1.ScreenWidth / 2) - (strSize.X / 2), (Game1.ScreenHeight / 2) - (strSize.Y / 2));
@@ -265,7 +266,7 @@ namespace BloodyPipeDream
 			}
 			else if (Mode == GameMode.Help)
 			{
-				if (Input.AnyKey && !Input.WasAnyKey)
+				if ((Input.AnyKey && !Input.WasAnyKey) || (Input.Back && !Input.WasBack))
 				{
 					Mode = GameMode.Menu;
 				}
