@@ -21,7 +21,7 @@ namespace BloodyPipeDream
 			YPos = yOffset;
 			Width = width;
 			Height = height;
-			Thickness = 2;
+			Thickness = 4;
         }
 
         public Vector2 getGridPosition()
@@ -38,7 +38,7 @@ namespace BloodyPipeDream
         public void Draw(SpriteBatch spriteBatch)
         {
             Rectangle r = new Rectangle(XPos + grid_x * Width, YPos + grid_y * Height, Width, Height);
-			Border border = new Border(r, Thickness, Color.Yellow);
+			Border border = new Border(r, Thickness, Color.Gold);
 			border.Draw(spriteBatch);
         }
     }
