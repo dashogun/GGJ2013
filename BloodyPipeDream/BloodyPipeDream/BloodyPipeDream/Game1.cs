@@ -30,7 +30,7 @@ namespace BloodyPipeDream
 		private SpriteBatch SpriteBatch;
 		private BloodyGrid _grid;
 
-		enum GameMode { Menu, Game };
+		enum GameMode { Menu, Game, Win, Lose };
 		enum GameDifficulty { Easy, Medium, Hard };
 		Input Input;
 		GameMode Mode;
@@ -129,16 +129,20 @@ namespace BloodyPipeDream
 			HandleInput();
 			if (Mode == GameMode.Game)
 			{
-				BP.Update(gameTime);
+				if (!BP.Update(gameTime))
+				{
+					// game over
+					Mode = GameMode.Lose;
+				}
 			}
 
             base.Update(gameTime);
 
             if (Mode != GameMode.Menu)
             {
-                double dt = gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0;
-                bool isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
-                isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
+               // double dt = gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0;
+               // bool isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
+               // isFull = !_grid.fill((int)(200 * dt), GraphicsDevice);
             }
 		}
 
@@ -164,12 +168,28 @@ namespace BloodyPipeDream
 			{
 				Menu.Draw(SpriteBatch);
 			}
-			else
+			else if (Mode == GameMode.Game)
 			{
                 _grid.drawTiles(SpriteBatch);
                 _grid.drawCursor(SpriteBatch);
 				TileLookahead.Draw(SpriteBatch);
 				BP.Draw(SpriteBatch);
+			}
+			else if (Mode == GameMode.Win)
+			{
+				// do something coooooool!
+
+				String loseString = "YOU WIN!";
+				Vector2 loseSize = Game1.TitleFont.MeasureString(loseString);
+				Vector2 losePos = new Vector2((Game1.ScreenWidth / 2) - (loseSize.X / 2), (Game1.ScreenHeight / 2) - (loseSize.Y / 2));
+				SpriteBatch.DrawString(Game1.TitleFont, loseString, losePos, Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+			}
+			else if (Mode == GameMode.Lose)
+			{
+				String loseString = "YOU LOSE!";
+				Vector2 loseSize = Game1.TitleFont.MeasureString(loseString);
+				Vector2 losePos = new Vector2((Game1.ScreenWidth / 2) - (loseSize.X / 2), (Game1.ScreenHeight / 2) - (loseSize.Y / 2));
+				SpriteBatch.DrawString(Game1.TitleFont, loseString, losePos, Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 			}
 
 			SpriteBatch.End();
@@ -211,8 +231,16 @@ namespace BloodyPipeDream
 					// pump the blood through the pipes
 					
 					// lower the blood pressure
-					BP.decreasePressure(Globals.PRESSURE_DECREASE);
+					int fillAmt = BP.decreasePressure(Globals.PRESSURE_DECREASE);
+                    if (!_grid.fill(fillAmt * 10, GraphicsDevice))
+                    {
+                        Mode = GameMode.Lose;
+                    }
 				}
+			}
+			else if (Mode == GameMode.Lose || Mode == GameMode.Win)
+			{
+				if (Input.Back) { Mode = GameMode.Menu; }
 			}
 		}
 

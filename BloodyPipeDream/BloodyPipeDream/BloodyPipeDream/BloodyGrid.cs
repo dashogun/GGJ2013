@@ -129,8 +129,7 @@ namespace BloodyPipeDream
         {
             if (texture == null)
             {
-                texture = new Texture2D(game.GraphicsDevice, 1, 1);
-                texture.SetData(new Color[] { Color.Black });
+				texture = game.Content.Load<Texture2D>("img/null_pipe_128");
             }
         }
 
@@ -213,9 +212,9 @@ namespace BloodyPipeDream
             Texture2D texture = null;
             SpriteEffects flip = SpriteEffects.None;
             getTextureFlip(ref texture, ref flip);
-            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0,0), flip, 0);
             if (null!= fillTex)
                 spritebatch.Draw(fillTex, area, Color.Red);
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
         }
     }
 
@@ -258,6 +257,7 @@ namespace BloodyPipeDream
         int mRotation; //0 = vertical or 1 = horizontal
 
         private static Texture2D[] textures = null;
+		private static Texture2D bgTexture = null;
         private Texture2D fillTex = null;
 
         public static void loadContent(Game game)
@@ -269,6 +269,9 @@ namespace BloodyPipeDream
                 Debug.WriteLine("Initializing static value for straight tile texture");
                 textures[0] = game.Content.Load<Texture2D>("img/straight_pipe_vertical_128");
                 textures[1] = game.Content.Load<Texture2D>("img/straight_pipe_horizontal_128");
+
+				bgTexture = new Texture2D(game.GraphicsDevice, 1, 1);
+				bgTexture.SetData(new Color[] { Color.GreenYellow });
             }
             else
             {
@@ -316,10 +319,13 @@ namespace BloodyPipeDream
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
             Texture2D texture = (mRotation == 1) ? textures[1] : textures[0];
-			spritebatch.Draw(texture, area, Color.White);
+            spritebatch.Draw(bgTexture, area, Color.White);
 
             if (null != fillTex)
                 spritebatch.Draw(fillTex, area, Color.Red);
+
+			spritebatch.Draw(texture, area, Color.White);
+
         }
     }
 
@@ -328,6 +334,7 @@ namespace BloodyPipeDream
         int mRotation; //0 = bottom<->right, 1 = right<->top, 2 = top<->left, 3 = left<->bottom
 
         private static Texture2D texture = null;
+		private static Texture2D bgTexture = null;
         private Texture2D fillTex = null;
 
         public BloodyCurvedTile(int rotation)
@@ -341,7 +348,10 @@ namespace BloodyPipeDream
             if (texture == null)
             {
                 Debug.WriteLine("Initializing static value for straight tile texture");
-                texture = game.Content.Load<Texture2D>("img/curved_pipe_128");
+				texture = game.Content.Load<Texture2D>("img/curved_pipe_128");
+
+				bgTexture = new Texture2D(game.GraphicsDevice, 1, 1);
+				bgTexture.SetData(new Color[] { Color.GreenYellow });
             }
             else
             {
@@ -412,11 +422,13 @@ namespace BloodyPipeDream
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            SpriteEffects flip = getTextureFlip();
-            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
+			SpriteEffects flip = getTextureFlip();
+            spritebatch.Draw(bgTexture, area, Color.White);
 
             if (null != fillTex)
                 spritebatch.Draw(fillTex, area, null, Color.Red, 0, new Vector2(0, 0), flip, 0);
+
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
         }
     }
 

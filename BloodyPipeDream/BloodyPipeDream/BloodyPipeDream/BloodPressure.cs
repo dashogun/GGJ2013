@@ -57,17 +57,21 @@ namespace BloodyPipeDream
 			return true;
 		}
 
-		public void decreasePressure(int amount)
+		public int decreasePressure(int amount)
 		{
+            int ret = amount;
 			BP -= amount;
 			if (BP <= 0)
 			{
+                ret = BP + amount;
 				BP = 0;
 			}
+            return ret;
 		}
 
-		public void Update(GameTime gametime)
+		public bool Update(GameTime gametime)
 		{
+			bool alright = true;
 			AccumulatedMsec += gametime.ElapsedGameTime.Milliseconds;
 
 			while (AccumulatedMsec > Globals.MSEC_PER_PRESSURE)
@@ -76,9 +80,11 @@ namespace BloodyPipeDream
 				{
 					// signal game over
 					Debug.WriteLine("Game Over!!!");
+					alright = false;
 				}
 				AccumulatedMsec -= Globals.MSEC_PER_PRESSURE;
 			}
+			return alright;
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
