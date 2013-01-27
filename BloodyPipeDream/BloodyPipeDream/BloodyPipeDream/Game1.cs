@@ -290,6 +290,7 @@ namespace BloodyPipeDream
 					// set the pressure speeds
 					Globals.PRESSURE_DECREASE = 10;
 					Globals.PRESSURE_INCREASE = 1;
+					Globals.MSEC_PER_PRESSURE = 200;
 					break;
 				case GameDifficulty.Medium:
 					_grid.initialize(7, 7);
@@ -300,7 +301,8 @@ namespace BloodyPipeDream
 
 					// set the pressure speeds
 					Globals.PRESSURE_DECREASE = 8;
-					Globals.PRESSURE_INCREASE = 2;
+					Globals.PRESSURE_INCREASE = 1;
+					Globals.MSEC_PER_PRESSURE = 100;
 					break;
 				case GameDifficulty.Hard:
 					_grid.initialize(10, 10);
@@ -309,7 +311,8 @@ namespace BloodyPipeDream
 
 					// set the pressure speeds
 					Globals.PRESSURE_DECREASE = 5;
-					Globals.PRESSURE_INCREASE = 3;
+					Globals.PRESSURE_INCREASE = 1;
+					Globals.MSEC_PER_PRESSURE = 75;
 					break;
 			}
 
