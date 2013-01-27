@@ -21,8 +21,10 @@ namespace BloodyPipeDream
 		private BloodyGrid Grid;
 
 		enum GameMode { Menu, Game };
+		enum GameDifficulty { Easy, Medium, Hard };
 		Input Input;
 		GameMode Mode;
+		GameDifficulty Diff;
 		Menu Menu;
 
 		public static int ScreenWidth, ScreenHeight;
@@ -46,7 +48,7 @@ namespace BloodyPipeDream
 			// TODO: Add your initialization logic here
 			Input = new Input();
 			Mode = GameMode.Menu;
-			Menu = new Menu(new String[]{"Start Game", "Exit"});
+			Menu = new Menu(new String[]{"Start Easy Game", "Start Medium Game", "Start Hard Game", "Exit"});
 			ScreenWidth = 1024;
 			ScreenHeight = 768;
 			Graphics.PreferredBackBufferWidth = ScreenWidth;
@@ -137,9 +139,11 @@ namespace BloodyPipeDream
 			if (Mode == GameMode.Menu)
 			{
 				if (Input.Back) { this.Exit(); }
-				if (Input.Start && Menu.Position == 1) { this.Exit(); }
-				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { this.Exit(); }
-				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Mode = GameMode.Game; }
+				if (Input.Start && Menu.Position == 3) { this.Exit(); }
+				if (Menu.Position == 3 && (Input.AnyButton || Input.Start)) { this.Exit(); }
+				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Easy; Mode = GameMode.Game; }
+				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Medium;  Mode = GameMode.Game; }
+				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; Mode = GameMode.Game; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
 			}
