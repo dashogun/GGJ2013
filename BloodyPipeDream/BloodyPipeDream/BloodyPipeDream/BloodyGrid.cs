@@ -51,6 +51,17 @@ namespace BloodyPipeDream
         public override int getNextIndex(int index) { return mOutIndex; }
     }
 
+    class BloodyEndTile : BloodyTile
+    {
+        public override int getNextIndex(int index) { return -1; }
+
+        public virtual int fill(int amount)
+        {
+            //TODO: signal game end
+            return 0;
+        }
+    }
+
     class BloodyStraightTile : BloodyTile
     {
         int mRotation; //0 = vertical or 1 = horizontal
@@ -172,6 +183,9 @@ namespace BloodyPipeDream
             return mGrid[x, y];
         }
 
+        //Returns the next tile in the sequence
+        // all parameters are updated so that getNext may be run again on the next tile
+        // Check that both io_index == -1 and return value is null to check for failed trace
         public BloodyTile getNext(ref int io_index, ref int io_x, ref int io_y)
         {
             BloodyTile curTile = getTile(io_x, io_y);
@@ -179,6 +193,9 @@ namespace BloodyPipeDream
             io_x += mAdjacencyLUT[io_index, 0];
             io_y += mAdjacencyLUT[io_index, 1];
             io_index = ~io_index & 0x3;
+            
+            if (-1 == io_index)
+                return null;
 
             return getTile(io_x, io_y);
         }
@@ -216,6 +233,23 @@ namespace BloodyPipeDream
         public void insert(BloodyTile toInsert, int x, int y)
         {
             mGrid[x, y] = toInsert;
+        }
+
+        //Returns false if there aren't enough connected tiles to hold all of the blood
+        public virtual bool fill(int amount)
+        {
+            BloodyTile curTile = getTile(mStartX, mStartY);
+            int index = -1;
+            int x = mStartX;
+            int y = mStartY;
+
+            while (0 != amount && null != curTile)
+            {
+                amount = curTile.fill(amount);
+                curTile = getNext(ref index, ref x, ref y);
+            }
+
+            return 0 == amount;
         }
     }
 }
