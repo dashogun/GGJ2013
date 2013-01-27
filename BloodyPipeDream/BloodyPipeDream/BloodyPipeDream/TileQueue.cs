@@ -72,12 +72,21 @@ namespace BloodyPipeDream
 				scaleWidth - 4 * superSecretSeparatorThickness,
 				scaleWidth - 4 * superSecretSeparatorThickness);
 
+			Rectangle borderArea = tileArea;
+			borderArea.X -= 4;
+			borderArea.Y -= 4;
+			borderArea.Width += 8;
+			borderArea.Height += 8;
+			Border border = new Border(borderArea, 4, Color.Yellow);
+
 			foreach (BloodyTile tile in Queue)
 			{
 				tile.draw(tileArea, spriteBatch);
 				tileArea.Y += scaleWidth - superSecretSeparatorThickness-1;
 			}
 			Debug.WriteLine("# tiles in queue: {0}", Queue.Count);
+
+			border.Draw(spriteBatch);
 		}
 
 		public void Update(SpriteBatch spriteBatch)
