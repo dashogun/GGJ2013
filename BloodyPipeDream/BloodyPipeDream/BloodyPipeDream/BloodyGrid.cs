@@ -19,7 +19,7 @@ namespace BloodyPipeDream
         public BloodyTile()
         {
             mFill = 0;
-            mMaxFill = 100;
+            mMaxFill = 1000;
         }
 
         //Returns index of connection to next cell
@@ -28,7 +28,7 @@ namespace BloodyPipeDream
 
         //Add blood to this tile
         //Returns amount of blood that doesn't fit in tile
-        public virtual int fill(int amount)
+        public virtual int fill(int amount, GraphicsDevice graphicsDevice)
         {
             if (mFill >= mMaxFill)
                 return amount;
@@ -42,6 +42,55 @@ namespace BloodyPipeDream
             }
 
             return 0;
+        }
+
+        public Texture2D CreateCircle(int radius, float thetaStart, float thetaEnd, GraphicsDevice graphicsDevice)
+        {
+            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
+            Texture2D texture = new Texture2D(graphicsDevice, outerRadius, outerRadius);
+
+            Color[] data = new Color[outerRadius * outerRadius];
+
+            // Colour the entire texture transparent first.
+            for (int i = 0; i < data.Length; i++)
+                data[i] = Color.Transparent;
+
+            // Work out the minimum step necessary using trigonometry + sine approximation.
+            double angleStep = 1f / radius;
+
+            for (double angle = thetaStart; angle < thetaEnd; angle += angleStep)
+            {
+                // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
+
+                for (double r = radius; r >= 0; r -= angleStep)
+                {
+                    int x = (int)Math.Round(radius + r * radius * Math.Cos(angle));
+                    int y = (int)Math.Round(radius + r * radius * Math.Sin(angle));
+                    data[y * outerRadius + x + 1] = Color.White;
+                }
+            }
+
+            texture.SetData(data);
+            return texture;
+        }
+
+        public Texture2D CreateRectangle(Rectangle size, Rectangle filled, GraphicsDevice graphicsDevice)
+        {
+            Texture2D texture = new Texture2D(graphicsDevice, size.Width, size.Height);
+
+            Color[] data = new Color[size.Width * size.Height];
+
+            // Colour the entire texture transparent first.
+            for (int x = filled.Left; x < filled.Right; ++x)
+            {
+                for (int y = filled.Top; y < filled.Bottom; ++y)
+                {
+                    data[y * size.Width + x] = Color.White;
+                }
+            }
+
+            texture.SetData(data);
+            return texture;
         }
 
         public abstract void draw(Rectangle area, SpriteBatch spritebatch);
@@ -89,7 +138,6 @@ namespace BloodyPipeDream
 
         public static void loadContent(Game game)
         {
-            //TODO rotate tile appropriatelly
             if (textures == null)
             {
                 textures = new Texture2D[2];
@@ -125,7 +173,8 @@ namespace BloodyPipeDream
                     break;
             }
         }
-		public override void draw(Rectangle area, SpriteBatch spritebatch) 
+
+       	public override void draw(Rectangle area, SpriteBatch spritebatch) 
         { 
             Texture2D texture = null;
             SpriteEffects flip = SpriteEffects.None;
@@ -142,7 +191,7 @@ namespace BloodyPipeDream
 
         public override int getNextIndex(int index) { return -1; }
 
-        public override int fill(int amount)
+        public override int fill(int amount, GraphicsDevice graphicsDevice)
         {
             //TODO: signal game end
             return 0;
@@ -463,7 +512,7 @@ namespace BloodyPipeDream
         }
 
         //Returns false if there aren't enough connected tiles to hold all of the blood
-        public virtual bool fill(int amount)
+        public virtual bool fill(int amount, GraphicsDevice graphicsDevice)
         {
             BloodyTile curTile = getTile(mStartX, mStartY);
             int index = -1;
@@ -472,7 +521,7 @@ namespace BloodyPipeDream
 
             while (0 != amount && null != curTile)
             {
-                amount = curTile.fill(amount);
+                amount = curTile.fill(amount, graphicsDevice);
                 curTile = getNext(ref index, ref x, ref y);
             }
 

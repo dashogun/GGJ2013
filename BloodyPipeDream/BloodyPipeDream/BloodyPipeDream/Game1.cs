@@ -122,7 +122,11 @@ namespace BloodyPipeDream
 
 			// keep the tile queue filled
 
-			base.Update(gameTime);
+            base.Update(gameTime);
+
+            double dt = gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0;
+            bool isFull = _grid.fill((int)(200 * dt), GraphicsDevice);
+            isFull = _grid.fill((int)(200 * dt), GraphicsDevice);
 		}
 
 		/// <summary>
