@@ -27,6 +27,7 @@ namespace BloodyPipeDream
 
 		public static int ScreenWidth, ScreenHeight;
 		public static SpriteFont Font;
+		public static SpriteFont TitleFont;
 
 		public Game1()
 		{
@@ -52,6 +53,7 @@ namespace BloodyPipeDream
 			Graphics.PreferredBackBufferHeight = ScreenHeight;
 			Graphics.ApplyChanges();
 			Font = Content.Load<SpriteFont>("font/SpriteFont2");
+			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
 
 			base.Initialize();
 
