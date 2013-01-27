@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
@@ -10,11 +11,13 @@ namespace BloodyPipeDream
 	{
 		public int Position;
 		private String[] Options;
+		private Texture2D BGTexture;
 
 		public Menu(String[] options)
 		{
 			Options = options;
 			Position = 0;
+			
 		}
 
 		public void Update(GameTime gameTime)
@@ -23,31 +26,70 @@ namespace BloodyPipeDream
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			Rectangle bg = new Rectangle(Game1.ScreenWidth / 4, Game1.ScreenHeight / 4, Game1.ScreenWidth / 2, Game1.ScreenHeight / 2);
-			Texture2D bgTexture = new Texture2D(spriteBatch.GraphicsDevice, bg.Width, bg.Height);
-			spriteBatch.Draw(bgTexture, bg, Color.Black);
+			if (BGTexture == null)
+			{
+				BGTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+				BGTexture.SetData(new Color[] {Color.White});
+			}
 
-			int x = bg.Width / 2;
-			int y = bg.Height / (Options.Length + 1);
+			// draw the background
+			Rectangle bg = new Rectangle(Game1.ScreenWidth / 4, Game1.ScreenHeight / 4, Game1.ScreenWidth / 2, Game1.ScreenHeight / 2);
+			spriteBatch.Draw(BGTexture, bg, Color.Black);
+
+			// draw each option
+			int yOffset = bg.Height / Options.Length;
+			int yPos = bg.Top + (yOffset / 2);
 			foreach (String opt in Options)
 			{
-				spriteBatch.DrawString(Game1.Font, opt, );
+				Vector2 size = Game1.Font.MeasureString(opt);
+				Vector2 pos = new Vector2((Game1.ScreenWidth / 2) - (size.X / 2), yPos - (size.Y / 2));
+				spriteBatch.DrawString(Game1.Font, opt, pos, Color.White);
+				yPos += yOffset;
 			}
+
+			// draw the selection box
+			Vector2 selTextSize = Game1.Font.MeasureString(Options[Position]);
+			int selThickness = yOffset / 10;
+			Rectangle selTop = new Rectangle(
+				bg.Left,
+				bg.Top + yOffset * Position,
+				bg.Width,
+				selThickness);
+			Rectangle selBottom = new Rectangle(
+				bg.Left,
+				bg.Top + yOffset * (Position + 1) - selThickness,
+				bg.Width,
+				selThickness);
+			Rectangle selLeft = new Rectangle(
+				bg.Left,
+				bg.Top + yOffset * Position,
+				selThickness,
+				yOffset);
+			Rectangle selRight = new Rectangle(
+				bg.Right - selThickness,
+				bg.Top + yOffset * Position,
+				selThickness,
+				yOffset);
+
+			spriteBatch.Draw(BGTexture, selTop, Color.Green);
+			spriteBatch.Draw(BGTexture, selLeft, Color.Green);
+			spriteBatch.Draw(BGTexture, selRight, Color.Green);
+			spriteBatch.Draw(BGTexture, selBottom, Color.Green);
 		}
 
 		public void MoveUp()
 		{
-			if (Position + 1 < Options.Length)
+			if (Position - 1 >= 0)
 			{
-				Position++;
+				Position--;
 			}
 		}
 
 		public void MoveDown()
 		{
-			if (Position - 1 > 0)
+			if (Position + 1 < Options.Length)
 			{
-				Position--;
+				Position++;
 			}
 		}
 	}

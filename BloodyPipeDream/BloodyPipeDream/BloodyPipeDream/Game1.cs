@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
@@ -17,7 +18,7 @@ namespace BloodyPipeDream
 	{
 		private GraphicsDeviceManager Graphics;
 		private SpriteBatch SpriteBatch;
-		private Grid Grid;
+		private BloodyGrid Grid;
 
 		enum GameMode { Menu, Game };
 		Input Input;
@@ -66,6 +67,7 @@ namespace BloodyPipeDream
             canInsert = g.canInsert(new BloodyCurvedTile(2), 2, 0);
             canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
             canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
+			Grid = g;
 		}
 
 		/// <summary>
@@ -97,6 +99,7 @@ namespace BloodyPipeDream
 		protected override void Update(GameTime gameTime)
 		{
 			// TODO: Add your update logic here
+			HandleInput();
 
 			base.Update(gameTime);
 		}
@@ -109,8 +112,19 @@ namespace BloodyPipeDream
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
+			SpriteBatch.Begin();
 			// TODO: Add your drawing code here
 
+			if (Mode == GameMode.Menu)
+			{
+				Menu.Draw(SpriteBatch);
+			}
+			else
+			{
+
+			}
+
+			SpriteBatch.End();
 			base.Draw(gameTime);
 		}
 
@@ -124,8 +138,8 @@ namespace BloodyPipeDream
 				if (Input.Start && Menu.Position == 1) { this.Exit(); }
 				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { this.Exit(); }
 				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Mode = GameMode.Game; }
-				if (Input.Up) { Menu.MoveUp(); }
-				if (Input.Down) { Menu.MoveDown(); }
+				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
+				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
 			}
 			else if (Mode == GameMode.Game)
 			{
