@@ -11,16 +11,18 @@ namespace BloodyPipeDream
     {
         private int grid_x;
         private int grid_y;
+		private int XPos, YPos;
 		private int Width, Height;
 		private int Thickness;
 
         BloodyTile next_tile = null; // the tile next in the queue
 
-        public BloodyCursor(int width, int height)
+        public BloodyCursor(int xOffset, int yOffset, int width, int height)
         {
             grid_x = 1;
             grid_y = 1;
-
+			XPos = xOffset;
+			YPos = yOffset;
 			Width = width;
 			Height = height;
 			Thickness = 2;
@@ -39,7 +41,7 @@ namespace BloodyPipeDream
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            Rectangle r = new Rectangle(grid_x * Width, grid_y * Height, Width, Height);
+            Rectangle r = new Rectangle(XPos + grid_x * Width, YPos + grid_y * Height, Width, Height);
 			Border border = new Border(r, Thickness, Color.Yellow);
 			border.Draw(spriteBatch);
         }

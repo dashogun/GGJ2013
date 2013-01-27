@@ -7,8 +7,6 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 
 namespace BloodyPipeDream
@@ -323,8 +321,8 @@ namespace BloodyPipeDream
             mRows = rows + 2;
             mCols = cols + 2;
 			mArea = area;
-			mTileSize = new int[2] {area.Width / rows, area.Height / cols};
-            mGrid = new BloodyTile[rows, cols];
+			mTileSize = new int[2] { area.Width / mRows, area.Height / mCols };
+			mGrid = new BloodyTile[mRows, mCols];
             mAdjacencyLUT = new int[4, 2];
 
             //Bottom
@@ -343,7 +341,7 @@ namespace BloodyPipeDream
             mAdjacencyLUT[3, 0] = 0;
             mAdjacencyLUT[3, 1] = 1;
 
-            cursor = new BloodyCursor(mTileSize[0], mTileSize[1]);
+            cursor = new BloodyCursor(area.Left, area.Top, mTileSize[0], mTileSize[1]);
 
             // zero out the grid with null tiles
             this.clearGrid();
@@ -501,11 +499,17 @@ namespace BloodyPipeDream
 						Rectangle tileArea = new Rectangle(xloc, yloc, mTileSize[0], mTileSize[1]);
 						mGrid[j, i].draw(tileArea, spritebatch);
 
-						xloc += mTileSize[0];
-					}
+						// debug testing
+// 						String posStr = String.Format("({0},{1})\n({2},{3})", j, i, xloc, yloc);
+// 						Vector2 posSize = Game1.SmallFont.MeasureString(posStr);
+// 						Vector2 pos = new Vector2(xloc, yloc);
+// 						spritebatch.DrawString(Game1.SmallFont, posStr, pos, Color.White);
 
-					yloc += mTileSize[1];
+					}
+					xloc += mTileSize[0];
 				}
+
+				yloc += mTileSize[1];
 			}
 		}
 	}

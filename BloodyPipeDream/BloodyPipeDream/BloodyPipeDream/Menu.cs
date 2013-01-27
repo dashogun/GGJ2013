@@ -31,13 +31,6 @@ namespace BloodyPipeDream
 				BGTexture.SetData(new Color[] {Color.White});
 			}
 
-			// draw the title
-			Rectangle title = new Rectangle(0, 0, Game1.ScreenWidth, Game1.ScreenHeight / 4);
-			string titleStr = "BLOODY PIPE DREAM";
-			Vector2 titleSize = Game1.TitleFont.MeasureString(titleStr);
-			Vector2 titlePos = new Vector2((Game1.ScreenWidth / 2) - (titleSize.X / 2), 0);
-			spriteBatch.DrawString(Game1.TitleFont, titleStr, titlePos, Color.DarkRed, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-
 			// draw the background
 			Rectangle bg = new Rectangle(Game1.ScreenWidth / 4, Game1.ScreenHeight / 4, Game1.ScreenWidth / 2, Game1.ScreenHeight / 2);
 			spriteBatch.Draw(BGTexture, bg, Color.Black);

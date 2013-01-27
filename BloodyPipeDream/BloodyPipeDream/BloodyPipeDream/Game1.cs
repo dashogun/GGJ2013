@@ -40,6 +40,7 @@ namespace BloodyPipeDream
 		public static int ScreenWidth, ScreenHeight;
 		public static SpriteFont Font;
 		public static SpriteFont TitleFont;
+		public static SpriteFont SmallFont;
 
 		public Game1()
 		{
@@ -106,6 +107,7 @@ namespace BloodyPipeDream
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
 			Font = Content.Load<SpriteFont>("font/SpriteFont2");
 			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
+			SmallFont = Content.Load<SpriteFont>("font/SpriteFont3");
 
             BloodyStartTile.loadContent(this);
             BloodyStraightTile.loadContent(this);
@@ -149,6 +151,14 @@ namespace BloodyPipeDream
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			SpriteBatch.Begin();
+
+			// draw the title
+			Rectangle title = new Rectangle(0, 0, Game1.ScreenWidth, Game1.ScreenHeight / 4);
+			string titleStr = "BLOODY PIPE DREAM";
+			Vector2 titleSize = Game1.TitleFont.MeasureString(titleStr);
+			Vector2 titlePos = new Vector2((Game1.ScreenWidth / 2) - (titleSize.X / 2), 0);
+			SpriteBatch.DrawString(Game1.TitleFont, titleStr, titlePos, Color.DarkRed, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+
 
 			if (Mode == GameMode.Menu)
 			{
