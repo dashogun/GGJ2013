@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
-    public class BloodyTile
+    public abstract class BloodyTile
     {
         int mFill;
         int mMaxFill;
@@ -37,10 +45,44 @@ namespace BloodyPipeDream
 
             return 0;
         }
+
+        public abstract void draw(int pos_x, int pos_y, SpriteBatch spritebatch);
+    }
+
+    class BloodyNullTile : BloodyTile
+    {
+        private static Texture2D texture = null;
+
+        int mOutIndex;
+
+        public BloodyNullTile(int outIndex = -1)
+        {
+            mOutIndex = outIndex;
+        }
+
+        public override int getNextIndex(int index) { return mOutIndex; }
+
+        public static void loadContent(Game game)
+        {
+            if (texture == null)
+            {
+                texture = new Texture2D(game.GraphicsDevice, 1, 1);
+                texture.SetData(new Color[] { Color.Black });
+            }
+        }
+
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+        {
+            // todo; get values for tile width from somewhere else
+            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            spritebatch.Draw(texture, r, Color.White);
+        }
     }
 
     class BloodyStartTile : BloodyTile
     {
+
+
         int mOutIndex;
 
         public BloodyStartTile(int outIndex = 1)
@@ -49,7 +91,19 @@ namespace BloodyPipeDream
         }
 
         public override int getNextIndex(int index) { return mOutIndex; }
+
+        public static void loadContent(Game game)
+        {
+            //TODO: load
+        }
+
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch) 
+        { 
+            //TODO: effin draw this
+        }
     }
+
+
 
     class BloodyEndTile : BloodyTile
     {
@@ -60,11 +114,37 @@ namespace BloodyPipeDream
             //TODO: signal game end
             return 0;
         }
+
+        public static void loadContent(Game game)
+        {
+            //TODO: load
+        }
+
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+        {
+            //TODO: effin draw this
+        }
     }
 
     class BloodyStraightTile : BloodyTile
     {
         int mRotation; //0 = vertical or 1 = horizontal
+
+        private static Texture2D texture = null;
+
+        public static void loadContent(Game game)
+        {
+            //TODO rotate tile appropriatelly
+            if (texture == null)
+            {
+                Debug.WriteLine("Initializing static value for straight tile texture");
+                texture = game.Content.Load<Texture2D>("img/straight_pipe_128");
+            }
+            else
+            {
+                Debug.WriteLine("straight pipe texture is already initialized");
+            }
+        }
 
         public BloodyStraightTile(int rotation)
         {
@@ -85,14 +165,39 @@ namespace BloodyPipeDream
             }
             return -1;
         }
+
+
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+        {
+            // todo; get values for tile width from somewhere else
+            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            spritebatch.Draw(texture, r, Color.White);
+        }
     }
 
     class BloodyCurvedTile : BloodyTile
     {
         int mRotation; //0 = bottom<->right, 1 = right<->top, 2 = top<->left, 3 = left<->bottom
+
+        private static Texture2D texture = null;
+
         public BloodyCurvedTile(int rotation)
         {
             mRotation = rotation;
+        }
+
+        public static void loadContent(Game game)
+        {
+            //TODO rotate tile appropriatelly
+            if (texture == null)
+            {
+                Debug.WriteLine("Initializing static value for straight tile texture");
+                texture = game.Content.Load<Texture2D>("img/curved_pipe_128");
+            }
+            else
+            {
+                Debug.WriteLine("straight pipe texture is already initialized");
+            }
         }
 
         public override int getNextIndex(int index)
@@ -126,6 +231,13 @@ namespace BloodyPipeDream
                     return 0;
             }
             return -1;
+        }
+
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+        {
+            // todo; get values for tile width from somewhere else
+            Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            spritebatch.Draw(texture, r, Color.White);
         }
     }
 
@@ -161,6 +273,9 @@ namespace BloodyPipeDream
             //Top
             mAdjacencyLUT[3, 0] = 0;
             mAdjacencyLUT[3, 1] = 1;
+
+            // zero out the grid with null tiles
+            this.clearGrid();
         }
 
         public void setStart(BloodyStartTile start, int startX, int startY)
@@ -250,6 +365,45 @@ namespace BloodyPipeDream
             }
 
             return 0 == amount;
+        }
+
+        public void clearGrid()
+        {
+            for (int i = 0; i < mHeight; i++)
+            {
+                for (int j = 0; j < mWidth; j++)
+                {
+                    mGrid[i, j] = new BloodyNullTile();
+                    Debug.WriteLine("adding null tile to location {0},{1}", i, j);
+                }
+            }
+        }
+
+        public void drawTiles(SpriteBatch spritebatch)
+        {
+            int xloc = 0;
+            int yloc = 0;
+
+            // for each row
+            for (int i = 0; i < mHeight; i++)
+            {
+                // reset x to zero each time we move up a row
+                xloc = 0;
+
+                // for each column
+                for (int j = 0; j < mWidth; j++)
+                {
+
+                    Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
+                    mGrid[j, i].draw(xloc, yloc, spritebatch);
+
+                    xloc += Globals.TILE_WIDTH;
+                }
+
+                yloc += Globals.TILE_HEIGHT;
+                
+            }
+            int z = 0;
         }
     }
 }

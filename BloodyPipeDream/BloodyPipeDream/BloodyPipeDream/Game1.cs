@@ -11,6 +11,14 @@ using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
+    class Globals
+    {
+        public static int TILE_WIDTH = 64;
+        public static int TILE_HEIGHT = 64;
+    }
+
+
+
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
@@ -18,7 +26,7 @@ namespace BloodyPipeDream
 	{
 		private GraphicsDeviceManager Graphics;
 		private SpriteBatch SpriteBatch;
-		private BloodyGrid Grid;
+		private BloodyGrid _grid;
 
 		enum GameMode { Menu, Game };
 		enum GameDifficulty { Easy, Medium, Hard };
@@ -59,19 +67,23 @@ namespace BloodyPipeDream
 
 			base.Initialize();
 
-            BloodyGrid g = new BloodyGrid(3, 3);
-            g.setStart(new BloodyStartTile(2), 0, 0);
-            g.insert(new BloodyStraightTile(1), 1, 0);
+            _grid = new BloodyGrid(10, 10);
+            _grid.setStart(new BloodyStartTile(2), 0, 0);
+            _grid.insert(new BloodyStraightTile(1), 0, 1);
+            _grid.insert(new BloodyStraightTile(0), 0, 2);
+            _grid.insert(new BloodyCurvedTile(0), 1, 0);
+            _grid.insert(new BloodyCurvedTile(0), 1, 1);
+            _grid.insert(new BloodyCurvedTile(0), 2, 0);
+            _grid.insert(new BloodyCurvedTile(0), 2, 1);
             bool canInsert;
-            canInsert = g.canInsert(new BloodyStraightTile(1), 1, 0);
-            canInsert = g.canInsert(new BloodyStraightTile(1), 2, 0);
-            canInsert = g.canInsert(new BloodyStraightTile(0), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(0), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(1), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(2), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
-            canInsert = g.canInsert(new BloodyCurvedTile(3), 2, 0);
-			Grid = g;
+            canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
+            canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
+            canInsert = _grid.canInsert(new BloodyStraightTile(0), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(0), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(1), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
+            canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
 		}
 
 		/// <summary>
@@ -82,6 +94,11 @@ namespace BloodyPipeDream
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+            BloodyStraightTile.loadContent(this);
+            BloodyNullTile.loadContent(this);
+            BloodyCurvedTile.loadContent(this);
+
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -117,7 +134,6 @@ namespace BloodyPipeDream
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			SpriteBatch.Begin();
-			// TODO: Add your drawing code here
 
 			if (Mode == GameMode.Menu)
 			{
@@ -125,11 +141,12 @@ namespace BloodyPipeDream
 			}
 			else
 			{
-
+                _grid.drawTiles(SpriteBatch);
 			}
 
 			SpriteBatch.End();
 			base.Draw(gameTime);
+            
 		}
 
 		protected void HandleInput()
@@ -146,14 +163,14 @@ namespace BloodyPipeDream
 				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; Mode = GameMode.Game; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
-			}
+	}
 			else if (Mode == GameMode.Game)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
 				if (Input.Up)
 				{
 					// move the cursor up
-				}
+}
 				else if (Input.Left)
 				{
 					// move the cursor left
