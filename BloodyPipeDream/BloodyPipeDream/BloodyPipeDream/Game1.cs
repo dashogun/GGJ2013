@@ -226,16 +226,21 @@ namespace BloodyPipeDream
 					_grid.attemptInsertAtCursor(ref TileLookahead);
 				}
 
-				if (Input.Button2 && !Input.WasButton2)
+				if ((Input.Button2 && !Input.WasButton2) || Input.Button3)
 				{
-					// pump the blood through the pipes
-					
 					// lower the blood pressure
-					int fillAmt = BP.decreasePressure(Globals.PRESSURE_DECREASE);
-                    if (!_grid.fill(fillAmt * 10, GraphicsDevice))
+					BP.decreasePressure(Globals.PRESSURE_DECREASE);
+					
+					// pump the blood through the pipes
+					int result = _grid.fill(Globals.PRESSURE_DECREASE * 10, GraphicsDevice);
+					if (result > 0)
                     {
                         Mode = GameMode.Lose;
                     }
+					else if (result < 0)
+					{
+						Mode = GameMode.Win;
+					}
 				}
 			}
 			else if (Mode == GameMode.Lose || Mode == GameMode.Win)

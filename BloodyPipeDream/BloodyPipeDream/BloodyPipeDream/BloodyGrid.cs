@@ -228,8 +228,7 @@ namespace BloodyPipeDream
 
         public override int fill(int index, int amount, GraphicsDevice graphicsDevice)
         {
-            //TODO: signal game end
-            return 0;
+            return -1;
         }
 
         public static void loadContent(Game game)
@@ -658,7 +657,7 @@ namespace BloodyPipeDream
         }
 
         //Returns false if there aren't enough connected tiles to hold all of the blood
-        public virtual bool fill(int amount, GraphicsDevice graphicsDevice)
+        public virtual int fill(int amount, GraphicsDevice graphicsDevice)
         {
             BloodyTile curTile = getTile(mStartX, mStartY);
             int index = -1;
@@ -671,7 +670,7 @@ namespace BloodyPipeDream
                 curTile = getNext(ref index, ref x, ref y);
             }
 
-            return 0 == amount;
+            return amount;
         }
 
         public void clearGrid()
