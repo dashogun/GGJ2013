@@ -171,26 +171,23 @@ namespace BloodyPipeDream
 				if (Input.Back) { Mode = GameMode.Menu; }
 				if (Input.Up && !Input.WasUp)
 				{
-                    _grid.cursor.moveUp();
+                    _grid.moveCursor(0, -1);
                 }
 				
                 if (Input.Left && !Input.WasLeft)
 				{
-                    _grid.cursor.moveLeft();
-					// move the cursor left
+                    _grid.moveCursor(-1, 0);
 				}
 				
                 if (Input.Right && !Input.WasRight)
 				{
-                    _grid.cursor.moveRight();
-					// move the cursor right
+                    _grid.moveCursor(1, 0);
 				
                 }
 				
                 if (Input.Down && !Input.WasDown)
 				{
-                    _grid.cursor.moveDown();
-					// move the cursor down
+                    _grid.moveCursor(0, 1);
 				}
 				
                 /*elseif (Input.AnyButton)

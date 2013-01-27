@@ -388,6 +388,20 @@ namespace BloodyPipeDream
             return mGrid[x, y];
         }
 
+        public void moveCursor(int dx, int dy)
+        {
+            Vector2 ipos = cursor.getGridPosition();
+
+            Vector2 dpos = new Vector2(dx, dy);
+
+            Vector2 fpos = ipos + dpos;
+
+            if (isInInnerGrid((int)fpos.X, (int)fpos.Y))
+            {
+                cursor.setGridPosition((int)fpos.X, (int)fpos.Y);
+            }
+        }
+
         //Returns the next tile in the sequence
         // all parameters are updated so that getNext may be run again on the next tile
         // Check that both io_index == -1 and return value is null to check for failed trace

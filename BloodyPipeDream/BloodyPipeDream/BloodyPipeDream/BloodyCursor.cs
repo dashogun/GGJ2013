@@ -18,16 +18,22 @@ namespace BloodyPipeDream
 
         public BloodyCursor()
         {
+            grid_x = 1;
+            grid_y = 1;
+
             Rectangle r = new Rectangle(0, 0, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
             border = new Border(r, 2, Color.Yellow);
-
-            grid_x = 0;
-            grid_y = 0;
         }
 
         public Vector2 getGridPosition()
         {
             return new Vector2(grid_x, grid_y);
+        }
+
+        public void setGridPosition(int grid_x, int grid_y)
+        {
+            this.grid_x = grid_x;
+            this.grid_y = grid_y;
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -37,33 +43,6 @@ namespace BloodyPipeDream
             border.Draw(spriteBatch);
         }
 
-        public void moveLeft()
-        {
-            if (grid_x > 0) grid_x--;
-        }
-
-        public void moveRight()
-        {
-            if (grid_x < Globals.GRID_SIZE-1)
-            {
-                grid_x++;
-            }
-        }
-
-        public void moveUp()
-        {
-            if (grid_y > 0)
-            {
-                grid_y--;
-            }
-        }
-
-        public void moveDown()
-        {
-            if (grid_y < Globals.GRID_SIZE - 1)
-            {
-                grid_y++;
-            }
-        }
+        
     }
 }
