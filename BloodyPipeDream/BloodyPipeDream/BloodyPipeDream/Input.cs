@@ -46,7 +46,7 @@ namespace BloodyPipeDream
 
 			Back = (pad.Buttons.Back == ButtonState.Pressed || kb.IsKeyDown(Keys.Escape));
 			Start = (pad.Buttons.Start == ButtonState.Pressed || kb.IsKeyDown(Keys.Enter));
-			Button1 = (pad.Buttons.A == ButtonState.Pressed || kb.IsKeyDown(Keys.D1));
+			Button1 = (pad.Buttons.A == ButtonState.Pressed || kb.IsKeyDown(Keys.D1) || kb.IsKeyDown(Keys.Space));
 			Button2 = (pad.Buttons.B == ButtonState.Pressed || kb.IsKeyDown(Keys.D2));
 			Button3 = (pad.Buttons.X == ButtonState.Pressed || kb.IsKeyDown(Keys.D3));
 			Button4 = (pad.Buttons.Y == ButtonState.Pressed || kb.IsKeyDown(Keys.D4));
@@ -63,7 +63,7 @@ namespace BloodyPipeDream
 
 			WasBack = (OldPad.Buttons.Back == ButtonState.Pressed || OldKB.IsKeyDown(Keys.Escape));
 			WasStart = (OldPad.Buttons.Start == ButtonState.Pressed || OldKB.IsKeyDown(Keys.Enter));
-			WasButton1 = (OldPad.Buttons.A == ButtonState.Pressed || OldKB.IsKeyDown(Keys.D1));
+			WasButton1 = (OldPad.Buttons.A == ButtonState.Pressed || OldKB.IsKeyDown(Keys.D1) || OldKB.IsKeyDown(Keys.Space));
 			WasButton2 = (OldPad.Buttons.B == ButtonState.Pressed || OldKB.IsKeyDown(Keys.D2));
 			WasButton3 = (OldPad.Buttons.X == ButtonState.Pressed || OldKB.IsKeyDown(Keys.D3));
 			WasButton4 = (OldPad.Buttons.Y == ButtonState.Pressed || OldKB.IsKeyDown(Keys.D4));
