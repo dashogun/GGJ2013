@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace BloodyPipeDream
 {
@@ -22,12 +23,14 @@ namespace BloodyPipeDream
 		{
 			BloodyTile tile = Queue.First.Value;
 			Queue.RemoveFirst();
+			Debug.WriteLine("Pulling from queue: tile=" + tile.GetType().Name);
 			return tile;
 		}
 
 		public void Push(BloodyTile tile)
 		{
 			Queue.AddLast(tile);
+			Debug.WriteLine("Adding to queue: tile=" + tile.GetType().Name);
 		}
 
 		public BloodyTile Peek()
@@ -62,16 +65,19 @@ namespace BloodyPipeDream
 				);
 			spriteBatch.Draw(Texture, r, Color.White);
 
-			LinkedListNode<BloodyTile> node = Queue.First;
-			do 
+			int superSecretSeparatorThickness = (int)(7 * scale);
+			Rectangle tileArea = new Rectangle(
+				XPos,
+				(Game1.ScreenHeight - scaleHeight) / 2 + superSecretSeparatorThickness,
+				scaleWidth,
+				scaleWidth);
+
+			foreach (BloodyTile tile in Queue)
 			{
-				Rectangle tileArea = new Rectangle(
-					XPos,
-					(Game1.ScreenHeight - scaleHeight) / 2,
-					scaleWidth,
-					scaleWidth);
-				node.Value.draw(tileArea, spriteBatch);
-			} while (node.Next != null);
+				tile.draw(tileArea, spriteBatch);
+				tileArea.Y += scaleWidth + superSecretSeparatorThickness;
+			}
+			Debug.WriteLine("# tiles in queue: {0}", Queue.Count);
 		}
 
 		public void Update(SpriteBatch spriteBatch)
