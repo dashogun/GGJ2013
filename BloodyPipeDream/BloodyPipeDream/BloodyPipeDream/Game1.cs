@@ -14,6 +14,9 @@ namespace BloodyPipeDream
     class Globals
     {
         public static int GRID_SIZE = 10;
+		public static int PRESSURE_INCREASE = 1;
+		public static int PRESSURE_DECREASE = 10;
+		public static int MSEC_PER_PRESSURE = 100;
     }
 
 
@@ -124,6 +127,10 @@ namespace BloodyPipeDream
 		{
 			// TODO: Add your update logic here
 			HandleInput();
+			if (Mode == GameMode.Game)
+			{
+				BP.Update(gameTime);
+			}
 
 			base.Update(gameTime);
 		}
@@ -186,9 +193,18 @@ namespace BloodyPipeDream
                 if (Input.Right && !Input.WasRight) { _grid.moveCursor(1, 0); }
                 if (Input.Down && !Input.WasDown) { _grid.moveCursor(0, 1); }
 				
-                if (Input.AnyButton && !Input.WasAnyButton) {
+                if (Input.Button1 && !Input.WasButton1)
+				{
 					// place the pipe at the current cursor position
 					_grid.attemptInsertAtCursor(ref TileLookahead);
+				}
+
+				if (Input.Button2 && !Input.WasButton2)
+				{
+					// pump the blood through the pipes
+					
+					// lower the blood pressure
+					BP.decreasePressure(Globals.PRESSURE_DECREASE);
 				}
 			}
 		}
@@ -201,24 +217,36 @@ namespace BloodyPipeDream
 			{
 				case GameDifficulty.Easy:
 					_grid.initialize(5, 5);
-					// add 5
+					// add 5 lookaheads
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
+
+					// set the pressure speeds
+					Globals.PRESSURE_DECREASE = 10;
+					Globals.PRESSURE_INCREASE = 1;
 					break;
 				case GameDifficulty.Medium:
 					_grid.initialize(7, 7);
-					// add 3
+					// add 3 lookaheads
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
 					TileLookahead.Push(_grid.generateRandomTile());
+
+					// set the pressure speeds
+					Globals.PRESSURE_DECREASE = 8;
+					Globals.PRESSURE_INCREASE = 2;
 					break;
 				case GameDifficulty.Hard:
 					_grid.initialize(10, 10);
-					// add 1
+					// add 1 lookahead
 					TileLookahead.Push(_grid.generateRandomTile());
+
+					// set the pressure speeds
+					Globals.PRESSURE_DECREASE = 5;
+					Globals.PRESSURE_INCREASE = 3;
 					break;
 			}
 
@@ -241,7 +269,7 @@ namespace BloodyPipeDream
 // 			canInsert = _grid.canInsert(new BloodyCurvedTile(2), 2, 0);
 // 			canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
 // 			canInsert = _grid.canInsert(new BloodyCurvedTile(3), 2, 0);
-
+			BP.resetPressure();
 			Mode = GameMode.Game;
 		}
 	}

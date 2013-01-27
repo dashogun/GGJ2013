@@ -84,7 +84,7 @@ namespace BloodyPipeDream
 				tile.draw(tileArea, spriteBatch);
 				tileArea.Y += scaleWidth - superSecretSeparatorThickness-1;
 			}
-			Debug.WriteLine("# tiles in queue: {0}", Queue.Count);
+			//Debug.WriteLine("# tiles in queue: {0}", Queue.Count);
 
 			border.Draw(spriteBatch);
 		}

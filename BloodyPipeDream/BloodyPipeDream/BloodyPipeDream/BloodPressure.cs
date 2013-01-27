@@ -13,12 +13,13 @@ namespace BloodyPipeDream
 		private static Texture2D TextureBG = null;
 		private int XPos, Width;
 		private int BP;
+		private int AccumulatedMsec;
 
 		public BloodPressure(int xPos, int width)
 		{
 			XPos = xPos;
 			Width = width;
-			BP = 0;
+			resetPressure();
 		}
 
 		public static void loadContent(Game game)
@@ -38,9 +39,46 @@ namespace BloodyPipeDream
 			}
 		}
 
-		public void setPressure(int bp)
+		public void resetPressure()
 		{
-			BP = bp;
+			BP = 0;
+			AccumulatedMsec = 0;
+		}
+
+		public bool increasePressure(int amount)
+		{
+			if (amount < 0) { amount *= -1; }
+			BP += amount;
+			if (BP > 100)
+			{
+				BP = 100;
+				return false;
+			}
+			return true;
+		}
+
+		public void decreasePressure(int amount)
+		{
+			BP -= amount;
+			if (BP <= 0)
+			{
+				BP = 0;
+			}
+		}
+
+		public void Update(GameTime gametime)
+		{
+			AccumulatedMsec += gametime.ElapsedGameTime.Milliseconds;
+
+			while (AccumulatedMsec > Globals.MSEC_PER_PRESSURE)
+			{
+				if (!increasePressure(Globals.PRESSURE_INCREASE))
+				{
+					// signal game over
+					Debug.WriteLine("Game Over!!!");
+				}
+				AccumulatedMsec -= Globals.MSEC_PER_PRESSURE;
+			}
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
