@@ -24,14 +24,22 @@ namespace BloodyPipeDream
 	/// </summary>
 	public class Game1 : Microsoft.Xna.Framework.Game
 	{
+		private GraphicsDeviceManager Graphics;
+		private SpriteBatch SpriteBatch;
+		private BloodyGrid _grid;
 
-		GraphicsDeviceManager graphics;
-		SpriteBatch spriteBatch;
+		enum GameMode { Menu, Game };
+		Input Input;
+		GameMode Mode;
+		Menu Menu;
 
-        BloodyGrid _grid = null;
+		public static int ScreenWidth, ScreenHeight;
+		public static SpriteFont Font;
+		public static SpriteFont TitleFont;
+
 		public Game1()
 		{
-			graphics = new GraphicsDeviceManager(this);
+			Graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 		}
 
@@ -44,6 +52,16 @@ namespace BloodyPipeDream
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			Input = new Input();
+			Mode = GameMode.Menu;
+			Menu = new Menu(new String[]{"Start Game", "Exit"});
+			ScreenWidth = 1024;
+			ScreenHeight = 768;
+			Graphics.PreferredBackBufferWidth = ScreenWidth;
+			Graphics.PreferredBackBufferHeight = ScreenHeight;
+			Graphics.ApplyChanges();
+			Font = Content.Load<SpriteFont>("font/SpriteFont2");
+			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
 
 			base.Initialize();
 
@@ -73,7 +91,7 @@ namespace BloodyPipeDream
 		protected override void LoadContent()
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
-			spriteBatch = new SpriteBatch(GraphicsDevice);
+			SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             BloodyStraightTile.loadContent(this);
             BloodyNullTile.loadContent(this);
@@ -99,11 +117,8 @@ namespace BloodyPipeDream
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update(GameTime gameTime)
 		{
-			// Allows the game to exit
-			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-				this.Exit();
-
 			// TODO: Add your update logic here
+			HandleInput();
 
 			base.Update(gameTime);
 		}
@@ -116,13 +131,59 @@ namespace BloodyPipeDream
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin();
-			// TODO: Add your drawing code here
-            _grid.drawTiles(spriteBatch);
-            spriteBatch.End();
+			SpriteBatch.Begin();
 
+			if (Mode == GameMode.Menu)
+			{
+				Menu.Draw(SpriteBatch);
+			}
+			else
+			{
+                _grid.drawTiles(SpriteBatch);
+			}
+
+			SpriteBatch.End();
 			base.Draw(gameTime);
             
+		}
+
+		protected void HandleInput()
+		{
+			Input.Update();
+
+			if (Mode == GameMode.Menu)
+			{
+				if (Input.Back) { this.Exit(); }
+				if (Input.Start && Menu.Position == 1) { this.Exit(); }
+				if (Menu.Position == 1 && (Input.AnyButton || Input.Start)) { this.Exit(); }
+				if (Menu.Position == 0 && (Input.AnyButton || Input.Start)) { Mode = GameMode.Game; }
+				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
+				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
+	}
+			else if (Mode == GameMode.Game)
+			{
+				if (Input.Back) { Mode = GameMode.Menu; }
+				if (Input.Up)
+				{
+					// move the cursor up
+}
+				else if (Input.Left)
+				{
+					// move the cursor left
+				}
+				else if (Input.Right)
+				{
+					// move the cursor right
+				}
+				else if (Input.Down)
+				{
+					// move the cursor down
+				}
+				else if (Input.AnyButton)
+				{
+					// place the pipe at the current cursor position
+				}
+			}
 		}
 	}
 }

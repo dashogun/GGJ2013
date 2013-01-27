@@ -16,3 +16,4 @@
 *.cache
 *.pdb
 obj
+bin
