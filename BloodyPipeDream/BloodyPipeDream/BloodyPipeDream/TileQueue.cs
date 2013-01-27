@@ -67,15 +67,15 @@ namespace BloodyPipeDream
 
 			int superSecretSeparatorThickness = (int)(7 * scale);
 			Rectangle tileArea = new Rectangle(
-				XPos,
-				(Game1.ScreenHeight - scaleHeight) / 2 + superSecretSeparatorThickness,
-				scaleWidth,
-				scaleWidth);
+				XPos + 2 * superSecretSeparatorThickness,
+				(Game1.ScreenHeight - scaleHeight) / 2 + 2 * superSecretSeparatorThickness,
+				scaleWidth - 4 * superSecretSeparatorThickness,
+				scaleWidth - 4 * superSecretSeparatorThickness);
 
 			foreach (BloodyTile tile in Queue)
 			{
 				tile.draw(tileArea, spriteBatch);
-				tileArea.Y += scaleWidth + superSecretSeparatorThickness;
+				tileArea.Y += scaleWidth - superSecretSeparatorThickness-1;
 			}
 			Debug.WriteLine("# tiles in queue: {0}", Queue.Count);
 		}
