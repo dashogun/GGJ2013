@@ -13,8 +13,8 @@ namespace BloodyPipeDream
 {
     public abstract class BloodyTile
     {
-        int mFill;
-        int mMaxFill;
+        protected int mFill;
+        protected int mMaxFill;
 
         public BloodyTile()
         {
@@ -44,9 +44,10 @@ namespace BloodyPipeDream
             return 0;
         }
 
-        public Texture2D CreateCircle(int radius, float thetaStart, float thetaEnd, GraphicsDevice graphicsDevice)
+        public Texture2D CreateCircle(bool direction, float percent, GraphicsDevice graphicsDevice)
         {
-            int outerRadius = radius * 2 + 2; // So circle doesn't go out of bounds
+            int radius = 128;
+            int outerRadius = 130; // So circle doesn't go out of bounds
             Texture2D texture = new Texture2D(graphicsDevice, outerRadius, outerRadius);
 
             Color[] data = new Color[outerRadius * outerRadius];
@@ -56,16 +57,21 @@ namespace BloodyPipeDream
                 data[i] = Color.Transparent;
 
             // Work out the minimum step necessary using trigonometry + sine approximation.
-            double angleStep = 1f / radius;
+            double angleStep = 1f / 128;
 
-            for (double angle = thetaStart; angle < thetaEnd; angle += angleStep)
+            double theta = percent * Math.PI / 2;
+            double thetaStart, thetaEnd;
+            thetaStart = direction ? thetaStart = Math.PI / 2 : Math.PI - theta;
+            thetaEnd = direction ? Math.PI / 2 + theta : Math.PI;            
+
+            for (double angle = thetaStart; angle <= thetaEnd; angle += angleStep)
             {
                 // Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
 
-                for (double r = radius; r >= 0; r -= angleStep)
+                for (double r = -100; r <= -28; r += 0.5)
                 {
-                    int x = (int)Math.Round(radius + r * radius * Math.Cos(angle));
-                    int y = (int)Math.Round(radius + r * radius * Math.Sin(angle));
+                    int x = (int)Math.Round(r * Math.Cos(angle)) + radius;
+                    int y = (int)Math.Round(r * Math.Sin(angle)) + radius;
                     data[y * outerRadius + x + 1] = Color.White;
                 }
             }
@@ -137,6 +143,7 @@ namespace BloodyPipeDream
     class BloodyStartTile : BloodyTile
     {
         private static Texture2D[] textures = null;
+        private Texture2D fillTex = null;
         int mOutIndex; // 0 = down, 1 = left, 2 = right, 3 = up
 
         public BloodyStartTile(int outIndex = 1)
@@ -159,6 +166,23 @@ namespace BloodyPipeDream
             {
                 Debug.WriteLine("start pipe texture is already initialized");
             }
+        }
+
+        public override int fill(int amount, GraphicsDevice graphicsDevice)
+        {
+            int oldAmount = amount;
+            amount = base.fill(amount, graphicsDevice);
+            if (amount != oldAmount)
+            {
+                int fillPixels = (int)((mFill / (double)mMaxFill) * 128);
+                int x0 = mOutIndex != 1 ? 0 : 128 - fillPixels;
+                int y0 = mOutIndex != 3 ? 0 : 128 - fillPixels;
+                int width = mOutIndex == 0 || mOutIndex == 3 ? 128 : fillPixels;
+                int height = mOutIndex == 1 || mOutIndex == 2 ? 128 : fillPixels;
+                //fillTex = CreateRectangle(new Rectangle(0, 0, 128, 128), new Rectangle(x0, y0, width, height), graphicsDevice);
+                fillTex = CreateCircle(false, mFill / (float)mMaxFill, graphicsDevice);
+            }
+            return amount;
         }
 
         void getTextureFlip(ref Texture2D texture, ref SpriteEffects flip)
@@ -190,6 +214,8 @@ namespace BloodyPipeDream
             SpriteEffects flip = SpriteEffects.None;
             getTextureFlip(ref texture, ref flip);
             spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0,0), flip, 0);
+            if (null!= fillTex)
+                spritebatch.Draw(fillTex, area, null, Color.Red, 0, new Vector2(0, 0), flip, 0);
         }
     }
 
@@ -232,6 +258,7 @@ namespace BloodyPipeDream
         int mRotation; //0 = vertical or 1 = horizontal
 
         private static Texture2D[] textures = null;
+        private Texture2D fillTex = null;
 
         public static void loadContent(Game game)
         {
@@ -269,11 +296,29 @@ namespace BloodyPipeDream
             return -1;
         }
 
+        public override int fill(int amount, GraphicsDevice graphicsDevice)
+        {
+            int oldAmount = amount;
+            amount = base.fill(amount, graphicsDevice);
+            if (amount != oldAmount)
+            {
+                int fillPixels = (int)((mFill / (double)mMaxFill) * 128);
+                int x0 = 0 == mRotation || (true) ? 0 : 128 - fillPixels;
+                int y0 = 1 == mRotation || (true) ? 0 : 128 - fillPixels;
+                int width = mRotation == 0 ? 128 : fillPixels;
+                int height = mRotation == 1 ? 128 : fillPixels;
+                fillTex = CreateRectangle(new Rectangle(0, 0, 128, 128), new Rectangle(x0, y0, width, height), graphicsDevice);
+            }
+            return amount;
+        }
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
             Texture2D texture = (mRotation == 1) ? textures[1] : textures[0];
 			spritebatch.Draw(texture, area, Color.White);
+
+            if (null != fillTex)
+                spritebatch.Draw(fillTex, area, Color.Red);
         }
     }
 
@@ -282,6 +327,7 @@ namespace BloodyPipeDream
         int mRotation; //0 = bottom<->right, 1 = right<->top, 2 = top<->left, 3 = left<->bottom
 
         private static Texture2D texture = null;
+        private Texture2D fillTex = null;
 
         public BloodyCurvedTile(int rotation)
         {
@@ -354,7 +400,11 @@ namespace BloodyPipeDream
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), getTextureFlip(), 0);
+            SpriteEffects flip = getTextureFlip();
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), flip, 0);
+
+            if (null != fillTex)
+                spritebatch.Draw(fillTex, area, null, Color.Red, 0, new Vector2(0, 0), flip, 0);
         }
     }
 
