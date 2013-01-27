@@ -14,6 +14,8 @@ namespace BloodyPipeDream
     class Globals
     {
        
+
+        public static int GRID_SIZE = 10;
     }
 
 
@@ -71,15 +73,14 @@ namespace BloodyPipeDream
 				ScreenWidth - 2 * (ScreenWidth / 10),
 				ScreenHeight - 2 * (ScreenHeight / 10));
 			_grid = new BloodyGrid(10, 10, gridArea);
-
-			// grid testing
-            _grid.setStart(new BloodyStartTile(2), 0, 0);
-            _grid.insert(new BloodyStraightTile(1), 0, 1);
-            _grid.insert(new BloodyStraightTile(0), 0, 2);
-            _grid.insert(new BloodyCurvedTile(0), 1, 0);
-            _grid.insert(new BloodyCurvedTile(0), 1, 1);
-            _grid.insert(new BloodyCurvedTile(0), 2, 0);
+            _grid.setStart(new BloodyStartTile(2), 0, 1);
+            _grid.setEnd(new BloodyEndTile(), 11, 5);
+            _grid.insert(new BloodyStraightTile(1), 1, 2);
+            _grid.insert(new BloodyStraightTile(0), 1, 3);
             _grid.insert(new BloodyCurvedTile(0), 2, 1);
+            _grid.insert(new BloodyCurvedTile(1), 2, 2);
+            _grid.insert(new BloodyCurvedTile(2), 3, 1);
+            _grid.insert(new BloodyCurvedTile(3), 3, 2);
             bool canInsert;
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
@@ -106,9 +107,11 @@ namespace BloodyPipeDream
 			Font = Content.Load<SpriteFont>("font/SpriteFont2");
 			TitleFont = Content.Load<SpriteFont>("font/SpriteFont1");
 
+            BloodyStartTile.loadContent(this);
             BloodyStraightTile.loadContent(this);
             BloodyNullTile.loadContent(this);
             BloodyCurvedTile.loadContent(this);
+            BloodyEndTile.loadContent(this);
 			TileQueue.loadContent(this);
 
 
@@ -154,6 +157,7 @@ namespace BloodyPipeDream
 			else
 			{
                 _grid.drawTiles(SpriteBatch);
+                _grid.drawCursor(SpriteBatch);
 				TileLookahead.Draw(SpriteBatch);
 			}
 
@@ -176,31 +180,36 @@ namespace BloodyPipeDream
 				if (Menu.Position == 2 && (Input.AnyButton || Input.Start)) { Diff = GameDifficulty.Hard; Mode = GameMode.Game; }
 				if (Input.Up && !Input.WasUp) { Menu.MoveUp(); }
 				if (Input.Down && !Input.WasDown) { Menu.MoveDown(); }
-			}
+	        }
 			else if (Mode == GameMode.Game)
 			{
 				if (Input.Back) { Mode = GameMode.Menu; }
-				if (Input.Up)
+				if (Input.Up && !Input.WasUp)
 				{
-					// move the cursor up
-				}
-				else if (Input.Left)
+                    _grid.moveCursor(0, -1);
+                }
+				
+                if (Input.Left && !Input.WasLeft)
 				{
-					// move the cursor left
+                    _grid.moveCursor(-1, 0);
 				}
-				else if (Input.Right)
+				
+                if (Input.Right && !Input.WasRight)
 				{
-					// move the cursor right
+                    _grid.moveCursor(1, 0);
+				
 				}
-				else if (Input.Down)
+				
+                if (Input.Down && !Input.WasDown)
 				{
-					// move the cursor down
+                    _grid.moveCursor(0, 1);
 				}
-				else if (Input.AnyButton)
+				
+                /*elseif (Input.AnyButton)
 				{
 					// place the pipe at the current cursor position
+				}*/
 				}
 			}
 		}
 	}
-}

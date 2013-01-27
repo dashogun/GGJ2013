@@ -79,6 +79,7 @@ namespace BloodyPipeDream
 
     class BloodyStartTile : BloodyTile
     {
+        private static Texture2D[] textures = null;
         int mOutIndex;
 
         public BloodyStartTile(int outIndex = 1)
@@ -90,12 +91,48 @@ namespace BloodyPipeDream
 
         public static void loadContent(Game game)
         {
-            //TODO: load
+            //TODO rotate tile appropriatelly
+            if (textures == null)
+            {
+                textures = new Texture2D[2];
+                Debug.WriteLine("Initializing static value for start tile texture");
+                textures[0] = game.Content.Load<Texture2D>("img/start_pipe_vertical_128");
+                textures[1] = game.Content.Load<Texture2D>("img/start_pipe_horizontal_128");
+        }
+            else
+            {
+                Debug.WriteLine("start pipe texture is already initialized");
+            }
         }
 
+        void getTextureFlip(ref Texture2D texture, ref SpriteEffects flip)
+        {
+            switch (mOutIndex)
+            {
+                case 0:
+                    texture = textures[0];
+                    flip = SpriteEffects.None;
+                    break;
+                case 1:
+                    texture = textures[1];
+                    flip = SpriteEffects.None;
+                    break;
+                case 2:
+                    texture = textures[1];
+                    flip = SpriteEffects.FlipHorizontally;
+                    break;
+                case 3:
+                    texture = textures[0];
+                    flip = SpriteEffects.FlipVertically;
+                    break;
+            }
+        }
 		public override void draw(Rectangle area, SpriteBatch spritebatch) 
         { 
-            //TODO: effin draw this
+            Texture2D texture = null;
+            SpriteEffects flip = SpriteEffects.None;
+            getTextureFlip(ref texture, ref flip);
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0,0), flip, 0);
         }
     }
 
@@ -103,6 +140,8 @@ namespace BloodyPipeDream
 
     class BloodyEndTile : BloodyTile
     {
+        private static Texture2D texture = null;
+
         public override int getNextIndex(int index) { return -1; }
 
         public override int fill(int amount)
@@ -113,12 +152,21 @@ namespace BloodyPipeDream
 
         public static void loadContent(Game game)
         {
-            //TODO: load
+            //TODO rotate tile appropriatelly
+            if (texture == null)
+            {
+                Debug.WriteLine("Initializing static value for straight tile texture");
+                texture = game.Content.Load<Texture2D>("img/end_pipe_128");
+        }
+            else
+            {
+                Debug.WriteLine("straight pipe texture is already initialized");
+            }
         }
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            //TODO: effin draw this
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), SpriteEffects.None, 0);
         }
     }
 
@@ -126,15 +174,17 @@ namespace BloodyPipeDream
     {
         int mRotation; //0 = vertical or 1 = horizontal
 
-        private static Texture2D texture = null;
+        private static Texture2D[] textures = null;
 
         public static void loadContent(Game game)
         {
             //TODO rotate tile appropriatelly
-            if (texture == null)
+            if (textures == null)
             {
+                textures = new Texture2D[2];
                 Debug.WriteLine("Initializing static value for straight tile texture");
-                texture = game.Content.Load<Texture2D>("img/straight_pipe_128");
+                textures[0] = game.Content.Load<Texture2D>("img/straight_pipe_vertical_128");
+                textures[1] = game.Content.Load<Texture2D>("img/straight_pipe_horizontal_128");
             }
             else
             {
@@ -165,7 +215,8 @@ namespace BloodyPipeDream
 
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            spritebatch.Draw(texture, area, Color.White);
+            Texture2D texture = (mRotation == 1) ? textures[1] : textures[0];
+			spritebatch.Draw(texture, area, Color.White);
         }
     }
 
@@ -227,16 +278,35 @@ namespace BloodyPipeDream
             return -1;
         }
 
+        SpriteEffects getTextureFlip()
+        {
+            switch (mRotation)
+            {
+                case 0:
+                    return SpriteEffects.None;
+                case 1:
+                    return SpriteEffects.FlipVertically;
+                case 2:
+                    return SpriteEffects.FlipVertically | SpriteEffects.FlipHorizontally;
+                case 3:
+                    return SpriteEffects.FlipHorizontally;
+            }
+            return SpriteEffects.None;
+        }
+
+
 		public override void draw(Rectangle area, SpriteBatch spritebatch)
         {
-            spritebatch.Draw(texture, area, Color.White);
+            spritebatch.Draw(texture, area, null, Color.White, 0, new Vector2(0, 0), getTextureFlip(), 0);
         }
     }
 
     class BloodyGrid
     {
         int mRows, mCols;
+        int mInnerRows, mInnerCols;
         int mStartX, mStartY;
+        int mEndX, mEndY;
 		Rectangle mArea;
 		int[] mTileSize;
 
@@ -245,10 +315,13 @@ namespace BloodyPipeDream
 
         BloodyTile[,] mGrid;
 
+        public BloodyCursor cursor = null;
         public BloodyGrid(int rows, int cols, Rectangle area)
         {
-            mRows = rows;
-            mCols = cols;
+            mInnerRows = rows;
+            mInnerCols = cols;
+            mRows = rows + 2;
+            mCols = cols + 2;
 			mArea = area;
 			mTileSize = new int[2] {area.Width / rows, area.Height / cols};
             mGrid = new BloodyTile[rows, cols];
@@ -270,6 +343,8 @@ namespace BloodyPipeDream
             mAdjacencyLUT[3, 0] = 0;
             mAdjacencyLUT[3, 1] = 1;
 
+            cursor = new BloodyCursor(mTileSize[0], mTileSize[1]);
+
             // zero out the grid with null tiles
             this.clearGrid();
         }
@@ -281,9 +356,21 @@ namespace BloodyPipeDream
             mStartY = startY;
         }
 
-        public bool isInGrid(int x, int y)
+        public void setEnd(BloodyEndTile end, int endX, int endY)
+        {
+            mGrid[endX, endY] = end;
+            mEndX = endX;
+            mEndY = endY;
+        }
+
+        bool isInGrid(int x, int y)
         {
             return !(x < 0 || y < 0 || x >= mRows || y >= mCols);
+        }
+
+        public bool isInInnerGrid(int x, int y)
+        {
+            return !(x < 1 || y < 1 || x >= mInnerRows+1 || y >= mInnerCols+1) || (x == mStartX && y == mStartY) || (x == mEndX && y == mEndY);
         }
 
         public BloodyTile getTile(int x, int y)
@@ -292,6 +379,20 @@ namespace BloodyPipeDream
                 return null;
 
             return mGrid[x, y];
+        }
+
+        public void moveCursor(int dx, int dy)
+        {
+            Vector2 ipos = cursor.getGridPosition();
+
+            Vector2 dpos = new Vector2(dx, dy);
+
+            Vector2 fpos = ipos + dpos;
+
+            if (isInInnerGrid((int)fpos.X, (int)fpos.Y))
+            {
+                cursor.setGridPosition((int)fpos.X, (int)fpos.Y);
+            }
         }
 
         //Returns the next tile in the sequence
@@ -319,7 +420,7 @@ namespace BloodyPipeDream
 
         public bool canInsert(BloodyTile toInsert, int x, int y)
         {
-            if (isInGrid(x, y) && null == getTile(x, y))
+            if (isInInnerGrid(x, y) && null == getTile(x, y))
             {
                 int index = -1;
                 int traceX = mStartX;
@@ -333,7 +434,7 @@ namespace BloodyPipeDream
                         return false;
                     traceX += mAdjacencyLUT[index, 0];
                     traceY += mAdjacencyLUT[index, 1];
-                    return isInGrid(traceX, traceY);
+                    return isInInnerGrid(traceX, traceY);
                 }
 
                 return true;
@@ -375,6 +476,11 @@ namespace BloodyPipeDream
             }
         }
 
+        public void drawCursor(SpriteBatch spritebatch)
+        {
+            cursor.Draw(spritebatch);
+        }
+
         public void drawTiles(SpriteBatch spritebatch)
         {
             int xloc = mArea.Left;
@@ -389,16 +495,18 @@ namespace BloodyPipeDream
                 // for each column
                 for (int j = 0; j < mRows; j++)
                 {
+                    if (isInInnerGrid(j, i))
+                    {
+						//Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})", j, i, mGrid[j, i].GetType(), xloc, yloc);
+						Rectangle tileArea = new Rectangle(xloc, yloc, mTileSize[0], mTileSize[1]);
+						mGrid[j, i].draw(tileArea, spritebatch);
 
-                    Debug.WriteLine("Drawing [{0},{1}] ({2}) at location ({3},{4})",j,i,mGrid[j, i].GetType(),xloc,yloc);
-					Rectangle tileArea = new Rectangle(xloc, yloc, mTileSize[0], mTileSize[1]);
-                    mGrid[j, i].draw(tileArea, spritebatch);
+						xloc += mTileSize[0];
+					}
 
-                    xloc += mTileSize[0];
-                }
-
-                yloc += mTileSize[1];
-            }
-        }
-    }
+					yloc += mTileSize[1];
+				}
+			}
+		}
+	}
 }

@@ -20,6 +20,11 @@ namespace BloodyPipeDream
 			Color = color;
 		}
 
+        public void setTargetRectangle(Rectangle rectangle)
+        {
+            Target = rectangle;
+        }
+
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			if (BGTexture == null)
@@ -49,10 +54,10 @@ namespace BloodyPipeDream
 				Thickness,
 				Target.Height);
 
-			spriteBatch.Draw(BGTexture, selTop, Color.Green);
-			spriteBatch.Draw(BGTexture, selLeft, Color.Green);
-			spriteBatch.Draw(BGTexture, selRight, Color.Green);
-			spriteBatch.Draw(BGTexture, selBottom, Color.Green);
+            spriteBatch.Draw(BGTexture, selTop, Color);
+            spriteBatch.Draw(BGTexture, selLeft, Color);
+            spriteBatch.Draw(BGTexture, selRight, Color);
+            spriteBatch.Draw(BGTexture, selBottom, Color);
 		}
 	}
 }
