@@ -81,8 +81,7 @@ namespace BloodyPipeDream
 
     class BloodyStartTile : BloodyTile
     {
-
-
+        private static Texture2D[] textures = null;
         int mOutIndex;
 
         public BloodyStartTile(int outIndex = 1)
@@ -94,12 +93,52 @@ namespace BloodyPipeDream
 
         public static void loadContent(Game game)
         {
-            //TODO: load
+            //TODO rotate tile appropriatelly
+            if (textures == null)
+            {
+                textures = new Texture2D[2];
+                Debug.WriteLine("Initializing static value for start tile texture");
+                textures[0] = game.Content.Load<Texture2D>("img/start_pipe_vertical_128");
+                textures[1] = game.Content.Load<Texture2D>("img/start_pipe_horizontal_128");
+            }
+            else
+            {
+                Debug.WriteLine("start pipe texture is already initialized");
+            }
         }
 
-        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch) 
-        { 
-            //TODO: effin draw this
+        void getTextureFlip(ref Texture2D texture, ref SpriteEffects flip)
+        {
+            switch (mOutIndex)
+            {
+                case 0:
+                    texture = textures[0];
+                    flip = SpriteEffects.None;
+                    break;
+                case 1:
+                    texture = textures[1];
+                    flip = SpriteEffects.None;
+                    break;
+                case 2:
+                    texture = textures[1];
+                    flip = SpriteEffects.FlipHorizontally;
+                    break;
+                case 3:
+                    texture = textures[0];
+                    flip = SpriteEffects.FlipVertically;
+                    break;
+            }
+        }
+        public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
+        {
+            // todo; get values for tile width from somewhere else
+            Rectangle dr = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);            
+            Rectangle sr = new Rectangle(0, 0, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            Texture2D texture = null;
+            SpriteEffects flip = SpriteEffects.None;
+            getTextureFlip(ref texture, ref flip);
+            spritebatch.Draw(texture, dr, null, Color.White, 0, new Vector2(0,0), flip, 0);
+            //spritebatch.Draw(texture, r, Color.White);
         }
     }
 
@@ -130,15 +169,17 @@ namespace BloodyPipeDream
     {
         int mRotation; //0 = vertical or 1 = horizontal
 
-        private static Texture2D texture = null;
+        private static Texture2D[] textures = null;
 
         public static void loadContent(Game game)
         {
             //TODO rotate tile appropriatelly
-            if (texture == null)
+            if (textures == null)
             {
+                textures = new Texture2D[2];
                 Debug.WriteLine("Initializing static value for straight tile texture");
-                texture = game.Content.Load<Texture2D>("img/straight_pipe_128");
+                textures[0] = game.Content.Load<Texture2D>("img/straight_pipe_vertical_128");
+                textures[1] = game.Content.Load<Texture2D>("img/straight_pipe_horizontal_128");
             }
             else
             {
@@ -171,6 +212,7 @@ namespace BloodyPipeDream
         {
             // todo; get values for tile width from somewhere else
             Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
+            Texture2D texture = (mRotation == 1) ? textures[1] : textures[0];
             spritebatch.Draw(texture, r, Color.White);
         }
     }
@@ -233,11 +275,27 @@ namespace BloodyPipeDream
             return -1;
         }
 
+        SpriteEffects getTextureFlip()
+        {
+            switch (mRotation)
+            {
+                case 0:
+                    return SpriteEffects.None;
+                case 1:
+                    return SpriteEffects.FlipVertically;
+                case 2:
+                    return SpriteEffects.FlipVertically | SpriteEffects.FlipHorizontally;
+                case 3:
+                    return SpriteEffects.FlipHorizontally;
+            }
+            return SpriteEffects.None;
+        }
+
         public override void draw(int pos_x, int pos_y, SpriteBatch spritebatch)
         {
             // todo; get values for tile width from somewhere else
             Rectangle r = new Rectangle(pos_x, pos_y, Globals.TILE_WIDTH, Globals.TILE_HEIGHT);
-            spritebatch.Draw(texture, r, Color.White);
+            spritebatch.Draw(texture, r, null, Color.White, 0, new Vector2(0, 0), getTextureFlip(), 0);
         }
     }
 

@@ -70,9 +70,9 @@ namespace BloodyPipeDream
             _grid.insert(new BloodyStraightTile(1), 0, 1);
             _grid.insert(new BloodyStraightTile(0), 0, 2);
             _grid.insert(new BloodyCurvedTile(0), 1, 0);
-            _grid.insert(new BloodyCurvedTile(0), 1, 1);
-            _grid.insert(new BloodyCurvedTile(0), 2, 0);
-            _grid.insert(new BloodyCurvedTile(0), 2, 1);
+            _grid.insert(new BloodyCurvedTile(1), 1, 1);
+            _grid.insert(new BloodyCurvedTile(2), 2, 0);
+            _grid.insert(new BloodyCurvedTile(3), 2, 1);
             bool canInsert;
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 1, 0);
             canInsert = _grid.canInsert(new BloodyStraightTile(1), 2, 0);
@@ -93,6 +93,7 @@ namespace BloodyPipeDream
 			// Create a new SpriteBatch, which can be used to draw textures.
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+            BloodyStartTile.loadContent(this);
             BloodyStraightTile.loadContent(this);
             BloodyNullTile.loadContent(this);
             BloodyCurvedTile.loadContent(this);
